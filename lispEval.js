@@ -3,17 +3,21 @@ const env = {
   '+': (arr) => arr.reduce((sum, i) => sum + i, 0),
   '-': (arr) => arr[0] - arr[1],
   '*': (arr) => arr.reduce((mul, i) => mul * i, 1),
-  '/': (arr) => arr[0] / arr[1]
+  '/': (arr) => arr[0] / arr[1],
+  sqrt: (arr) => Math.sqrt(arr[0])
 }
 
-// an atom is a number of symbol
+// an atom is a number or symbol
 function atomParser (input) {
   let output = input.match(/^-?([1-9]\d*|0)(\.\d+)?([eE][+-]?\d+)?/) // need to extend to complex range, a/b form , +|- nan.0, +|-inf.0
   if (output) { return [Number(output[0]), input.slice(output[0].length)] }
-  output = input.match(/^"([^\\"]|\\["\\bfnrt/]|\\u[0-9a-fA-F]{4})*"/) // change regex
+  output = input.match(/^[a-zA-Z!$%&*/:<=?>~_^]*\s/) // update regex include hexcode
   if (output) { return [output[0], input.slice(output[0].length)] }
   return null
 }
+
+// const input = 'sqrt (/ 8 2))'
+// console.log(atomParser(input))
 
 function getListArg (input) {
   let count = 1
@@ -52,9 +56,9 @@ function getArgs (input) { // input = arg1, arg2,..) arg are either atoms or lis
 function expressionEval (input) {
   if (input[0] !== '(') { return null } // input = (op arg1 arg2 ...)
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
-  const op = input.split(/\s/)[0] // operation = +,-,> or other operations
+  const op = atomParser(input)[0].trim() // operation = +,-,> or other operations
   if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
-  input = input.slice(op.length).trim() // input = (exp) (exp) ...)
+  input = atomParser(input)[1].trim() // input = (exp) (exp) ...)
   const args = getArgs(input) // getArgs('(exp) (exp) ...)') = [exp1Val, exp2Val ...]
   if (args === null) { return null }
   return env[op](args) // op([exp1Val, exp2Val ...])
@@ -65,9 +69,6 @@ function evaluate (input) {
   return expressionEval(input)
 }
 
-// const input = '(* (/ 1 2) 3)'
-// const input = '(+ 1 (+ 2 3))'
-// const input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )'
 // const input = '(+ (+ 1 (- 1 1)) 1)'
-const input = '(* 5 10)'
+const input = '(sqrt (/ 8 2))'
 console.log(evaluate(input))
