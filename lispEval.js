@@ -44,14 +44,14 @@ function getListArg (input) {
   return [input.slice(0, input.length - str.length), str] // returns [listArg, rest of the string]
 }
 
-function getArgs (input) { // input = arg1, arg2,..) arg are either atoms or list argument
+function getArgs (input) { // input = arg1, arg2,..) args are either atom or list expressions
   const args = []
   while (input[0] !== ')') { // the last ) in the input is reached?
-    if (input[0] === '(') { // list argument
+    if (input[0] === '(') { // list expression
       const arg = getListArg(input) //
       args.push(expressionEval(arg[0]))
       input = arg[1].trim()
-    } else { // get atom arg
+    } else { // get atom expression
       const parsed = atomParser(input)
       if (!parsed) { return null }
       args.push(parsed[0])
@@ -67,15 +67,15 @@ function expressionEval (input) {
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
   const op = atomParser(input)[0].trim() // operation = +,-,> or other operations
   if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
-  input = atomParser(input)[1].trim() // input = (exp) (exp) ...)
+  input = atomParser(input)[1].trim() // input = arg1 arg2 ...)
   if (input === null) { return null }
-  const args = getArgs(input) // getArgs('(exp) (exp) ...)') = [exp1Val, exp2Val ...]
+  const args = getArgs(input) // getArgs('(arg1 arg2...)') = [exp1Val, exp2Val ...]
   if (args === null) { return null }
   return env[op](args) // op([exp1Val, exp2Val ...])
 }
 
 function evaluate (input) {
-  input = input.replaceAll('(', '( ').replaceAll(')', ' )')
+  input = input.replaceAll('(', '( ').replaceAll(')', ' )') // not required
   return expressionEval(input)
 }
 
