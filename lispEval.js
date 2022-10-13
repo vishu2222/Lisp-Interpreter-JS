@@ -66,6 +66,7 @@ function expressionEval (input) {
   if (input[0] !== '(') { return null } // input = (op arg1 arg2 ...)
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
   const op = atomParser(input)[0].trim() // operation = +,-,> or other operations
+  if (op === null) { console.log('error: invalid op'); return null } // not a valid operator
   if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
   input = atomParser(input)[1].trim() // input = arg1 arg2 ...)
   if (input === null) { return null }
