@@ -1,10 +1,12 @@
 
 const env = {
   '+': (arr) => arr.reduce((sum, i) => sum + i, 0),
-  '-': (arr) => arr[0] - arr[1]
+  '-': (arr) => arr[0] - arr[1],
+  '*': (arr) => arr.reduce((mul, i) => mul * i, 1),
+  '/': (arr) => arr[0] / arr[1]
 }
 
-// symbol and number paresrs
+// an atom is a number of symbol
 function atomParser (input) {
   let output = input.match(/^-?([1-9]\d*|0)(\.\d+)?([eE][+-]?\d+)?/) // need to extend to complex range, a/b form , +|- nan.0, +|-inf.0
   if (output) { return [Number(output[0]), input.slice(output[0].length)] }
@@ -15,8 +17,8 @@ function atomParser (input) {
 
 function getListArg (input) {
   let count = 1
-  let str = input.slice()
-  str = str.slice(1)
+  let str = input.slice(1)
+  // str = str.slice(1)
   while (count !== 0) {
     if (str[0] === '(') {
       count++
@@ -36,7 +38,7 @@ function getArgs (input) { // input = arg1, arg2,..) arg are either atoms or lis
       const arg = getListArg(input) //
       args.push(expressionEval(arg[0]))
       input = arg[1].trim()
-    } else {
+    } else { // get atom arg
       const parsed = atomParser(input)
       if (!parsed) { return null }
       args.push(parsed[0])
@@ -63,8 +65,8 @@ function evaluate (input) {
   return expressionEval(input)
 }
 
-// const input = '(+ (+ 1 1) 1)'
+const input = '(* (/ 1 2) 3)'
 // const input = '(+ 1 (+ 2 3))'
 // const input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )'
-const input = '(+ (+ 1 (- 1 1)) 1)'
+// const input = '(+ (+ 1 (- 1 1)) 1)'
 console.log(evaluate(input))
