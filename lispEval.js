@@ -7,13 +7,21 @@ const env = {
   sqrt: (arr) => Math.sqrt(arr[0])
 }
 
-// an atom is a number or symbol
-function atomParser (input) {
-  let output = input.match(/^-?([1-9]\d*|0)(\.\d+)?([eE][+-]?\d+)?/) // need to extend to complex range, a/b form , +|- nan.0, +|-inf.0
+function numberParser (input) {
+  const output = input.match(/^-?([1-9]\d*|0)(\.\d+)?([eE][+-]?\d+)?/) // need to extend to complex range, a/b form , +|- nan.0, +|-inf.0
   if (output) { return [Number(output[0]), input.slice(output[0].length)] }
-  output = input.match(/^[a-zA-Z!$%&*/:<=?>~_^]*\s/) // update regex include hexcode
+  return null
+}
+
+function symbolParser (input) {
+  const output = input.match(/^[a-zA-Z!$%&*/:<=?>~_^]*\s/) // update regex include hexcode
   if (output) { return [output[0], input.slice(output[0].length)] }
   return null
+}
+
+// an atom is a number or symbol
+function atomParser (input) {
+  return numberParser(input) || symbolParser(input)
 }
 
 // const input = 'sqrt (/ 8 2))'
