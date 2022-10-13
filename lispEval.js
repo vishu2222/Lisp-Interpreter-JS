@@ -61,12 +61,18 @@ function getArgs (input) { // input = arg1, arg2,..) args are either atom or lis
   return args
 }
 
+// function formParser (op) {
+//   if (op === 'if') {
+//   }
+// }
+
 // evaluates a list expression and returns its value. a list expression = (operation arg1 arg2...) where arg is an atom or a list expression
 function expressionEval (input) {
   if (input[0] !== '(') { return null } // input = (op arg1 arg2 ...)
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
   const op = atomParser(input)[0].trim() // operation = +,-,> or other operations
   if (op === null) { console.log('error: invalid op'); return null } // not a valid operator
+
   if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
   input = atomParser(input)[1].trim() // input = arg1 arg2 ...)
   if (input === null) { return null }
@@ -80,6 +86,5 @@ function evaluate (input) {
   return expressionEval(input)
 }
 
-const input = '(+ (+ 1 (- 1 1)) 2)'
-// const input = '(sqrt (/ 8 2))'
+const input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
 console.log(evaluate(input))
