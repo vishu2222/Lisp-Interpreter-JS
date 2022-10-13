@@ -13,7 +13,7 @@ function atomParser (input) {
   return null
 }
 
-function getExpressionArg (input) {
+function getListArg (input) {
   let count = 1
   let str = input.slice()
   str = str.slice(1)
@@ -29,11 +29,11 @@ function getExpressionArg (input) {
   return [input.slice(0, input.length - str.length), str]
 }
 
-function getArgs (input) { // input = (exp) (exp) ...(exp))
+function getArgs (input) { // input = arg1, arg2,..) arg are either atoms or list argument
   const args = []
-  while (input[0] !== ')') {
-    if (input[0] === '(') { // means the arg is an expression
-      const arg = getExpressionArg(input) // if val = null?
+  while (input[0] !== ')') { // the last ) in the input is reached?
+    if (input[0] === '(') { // list argument
+      const arg = getListArg(input) //
       args.push(expressionEval(arg[0]))
       input = arg[1].trim()
     } else {
@@ -46,26 +46,25 @@ function getArgs (input) { // input = (exp) (exp) ...(exp))
   return args
 }
 
-// evaluates an expression and returns its value exp => expVal // (function args) -> val
+// evaluates a list expression and returns its value. a list expression = (operation arg1 arg2...) where arg is an atom or list expression
 function expressionEval (input) {
-  // input = (func (exp) (exp) ...)
-  if (input[0] !== '(') { return null }
-  input = input.slice(1).trim() // remove ( and trim spaces // input = func (exp) (exp) ...)
-  const func = input.split(/\s/)[0] // func is an operation in env // func = +
-  if (!Object.keys(env).includes(func)) { return null } // if func doesnt belong to env return null
-  input = input.slice(func.length).trim() // rest of the input after removing func part
+  if (input[0] !== '(') { return null } // input = (op arg1 arg2 ...)
+  input = input.slice(1).trim() // input = op arg1 arg2 ...)
+  const op = input.split(/\s/)[0] // operation = +,-,> or other operations
+  if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
+  input = input.slice(op.length).trim() // input = (exp) (exp) ...)
   const args = getArgs(input) // getArgs('(exp) (exp) ...)') = [exp1Val, exp2Val ...]
-  return env[func](args) // func([exp1Val, exp2Val ...])
+  if (args === null) { return null }
+  return env[op](args) // op([exp1Val, exp2Val ...])
 }
 
 function evaluate (input) {
   input = input.replaceAll('(', '( ').replaceAll(')', ' )')
-  if (input[0] !== '(') { return null } // should start with (
   return expressionEval(input)
 }
 
 // const input = '(+ (+ 1 1) 1)'
 // const input = '(+ 1 (+ 2 3))'
 // const input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )'
-const input = '(+ (+ 1 (+ 1 1)) 1)'
+const input = '(+ (+ 1 (- 1 1)) 1)'
 console.log(evaluate(input))
