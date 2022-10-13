@@ -4,33 +4,34 @@ const env = {
   '-': (arr) => arr[0] - arr[1],
   '*': (arr) => arr.reduce((mul, i) => mul * i, 1),
   '/': (arr) => arr[0] / arr[1],
-  sqrt: (arr) => Math.sqrt(arr[0])
+  '>': (arr) => arr[0] > arr[1],
+  '<': (arr) => arr[0] < arr[1],
+  '>=': (arr) => arr[0] >= arr[1],
+  '<=': (arr) => arr[0] <= arr[1],
+  '=': (arr) => arr[0] === arr[1],
+  sqrt: (arr) => Math.sqrt(arr[0]),
+  abs: (arr) => Math.abs(arr[0])
 }
 
 function numberParser (input) {
-  const output = input.match(/^-?([1-9]\d*|0)(\.\d+)?([eE][+-]?\d+)?/) // need to extend to complex range, a/b form , +|- nan.0, +|-inf.0
+  const output = input.match(/^[-+]?([1-9]\d*|0)(\.\d+)?([eE][+-]?\d+)?/) // need to extend to complex range, a/b form , +|- nan.0, +|-inf.0
   if (output) { return [Number(output[0]), input.slice(output[0].length)] }
   return null
 }
 
 function symbolParser (input) {
-  const output = input.match(/^[a-zA-Z!$%&*/:<=?>~_^]*\s/) // update regex include hexcode
+  const output = input.match(/^[\w!$%&*/:<=?>~_^+-/*]+[\w\d]*\s/) // update regex to include other chars
   if (output) { return [output[0], input.slice(output[0].length)] }
   return null
 }
 
-// an atom is a number or symbol
 function atomParser (input) {
-  return numberParser(input) || symbolParser(input)
+  return numberParser(input) || symbolParser(input) // an atom is a number or symbol
 }
-
-// const input = 'sqrt (/ 8 2))'
-// console.log(atomParser(input))
 
 function getListArg (input) {
   let count = 1
   let str = input.slice(1)
-  // str = str.slice(1)
   while (count !== 0) {
     if (str[0] === '(') {
       count++
@@ -60,7 +61,7 @@ function getArgs (input) { // input = arg1, arg2,..) arg are either atoms or lis
   return args
 }
 
-// evaluates a list expression and returns its value. a list expression = (operation arg1 arg2...) where arg is an atom or list expression
+// evaluates a list expression and returns its value. a list expression = (operation arg1 arg2...) where arg is an atom or a list expression
 function expressionEval (input) {
   if (input[0] !== '(') { return null } // input = (op arg1 arg2 ...)
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
@@ -78,6 +79,6 @@ function evaluate (input) {
   return expressionEval(input)
 }
 
-// const input = '(+ (+ 1 (- 1 1)) 1)'
-const input = '(sqrt (/ 8 2))'
+const input = '(+ (+ 1 (- 1 1)) 2)'
+// const input = '(sqrt (/ 8 2))'
 console.log(evaluate(input))
