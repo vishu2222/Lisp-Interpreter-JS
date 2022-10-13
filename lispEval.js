@@ -28,7 +28,7 @@ function getListArg (input) {
       str = str.slice(1)
     } else { str = str.slice(1) }
   }
-  return [input.slice(0, input.length - str.length), str]
+  return [input.slice(0, input.length - str.length), str] // returns [listArg, rest of the string]
 }
 
 function getArgs (input) { // input = arg1, arg2,..) arg are either atoms or list argument
@@ -65,8 +65,9 @@ function evaluate (input) {
   return expressionEval(input)
 }
 
-const input = '(* (/ 1 2) 3)'
+// const input = '(* (/ 1 2) 3)'
 // const input = '(+ 1 (+ 2 3))'
 // const input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )'
 // const input = '(+ (+ 1 (- 1 1)) 1)'
+const input = '(* 5 10)'
 console.log(evaluate(input))
