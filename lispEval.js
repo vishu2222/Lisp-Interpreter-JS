@@ -59,6 +59,7 @@ function expressionEval (input) {
   const op = atomParser(input)[0].trim() // operation = +,-,> or other operations
   if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
   input = atomParser(input)[1].trim() // input = (exp) (exp) ...)
+  if (input === null) { return null }
   const args = getArgs(input) // getArgs('(exp) (exp) ...)') = [exp1Val, exp2Val ...]
   if (args === null) { return null }
   return env[op](args) // op([exp1Val, exp2Val ...])
