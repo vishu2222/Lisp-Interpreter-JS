@@ -13,44 +13,59 @@ function atomParser (input) {
   return null
 }
 
-function getArgs (input) { // input = (exp) (exp) ...(exp)) // '1 (+ 2 3))'
-  // console.log(input, 'in get args 1')
+function getExpressionArg (input) {
+  let count = 1
+  let str = input.slice()
+  str = str.slice(1)
+  while (count !== 0) {
+    if (str[0] === '(') {
+      count++
+      str = str.slice(1)
+    } else if (str[0] === ')') {
+      count--
+      str = str.slice(1)
+    } else { str = str.slice(1) }
+  }
+  return [input.slice(0, input.length - str.length), str]
+}
+
+function getArgs (input) { // input = (exp) (exp) ...(exp))
   const args = []
-  if (input[0] === '(') {
-    args.push(expressionEval(input))
-  }
-  while (input[0] !== '(' && input[0] !== ')') { // to get atom args after an operation inside current expression and before the beginning of another expresion
-    const parsed = atomParser(input) // [ 1, ' ( + 2 3 ) )' ]
-    if (parsed) {
-      // console.log(parsed, '...in parsed of getArgs')
+  while (input[0] !== ')') {
+    if (input[0] === '(') { // means the arg is an expression
+      const arg = getExpressionArg(input) // if val = null?
+      args.push(expressionEval(arg[0]))
+      input = arg[1].trim()
+    } else {
+      const parsed = atomParser(input)
+      if (!parsed) { return null }
       args.push(parsed[0])
-      input = parsed[1].trim() // input = '( + 2 3 ) )'
-    } else { return null }
-  }
-  if (input[0] === '(') {
-    args.push(expressionEval(input))
+      input = parsed[1].trim()
+    }
   }
   return args
 }
 
+// evaluates an expression and returns its value exp => expVal // (function args) -> val
 function expressionEval (input) {
-  input = input.replaceAll('(', '( ').replaceAll(')', ' )') // input = (func (exp) (exp) ...) // '(+ 1 (+ 2 3))'
+  // input = (func (exp) (exp) ...)
   if (input[0] !== '(') { return null }
-  input = input.slice(1).trim() // remove ( and trim spaces // input = func (exp) (exp) ...) // '+ 1 (+ 2 3))'
+  input = input.slice(1).trim() // remove ( and trim spaces // input = func (exp) (exp) ...)
   const func = input.split(/\s/)[0] // func is an operation in env // func = +
   if (!Object.keys(env).includes(func)) { return null } // if func doesnt belong to env return null
-  input = input.slice(func.length).trim() // rest of the input after removing func part // input = (exp) (exp) ...) // input = 1 (+ 2 3))
-  const args = getArgs(input) // getArgs('(exp) (exp) ...)') = [exp1Val, exp2Val ...] // args('1 (+ 2 3))')
+  input = input.slice(func.length).trim() // rest of the input after removing func part
+  const args = getArgs(input) // getArgs('(exp) (exp) ...)') = [exp1Val, exp2Val ...]
   return env[func](args) // func([exp1Val, exp2Val ...])
 }
 
 function evaluate (input) {
-  if (input[0] !== '(') { return null }
+  input = input.replaceAll('(', '( ').replaceAll(')', ' )')
+  if (input[0] !== '(') { return null } // should start with (
   return expressionEval(input)
 }
 
-const input = '(+ (+ 1 1) 1)'
+// const input = '(+ (+ 1 1) 1)'
 // const input = '(+ 1 (+ 2 3))'
 // const input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )'
-console.log('......', input, '......')
+const input = '(+ (+ 1 (+ 1 1)) 1)'
 console.log(evaluate(input))
