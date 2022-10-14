@@ -42,7 +42,7 @@ function getListArg (input) {
       str = str.slice(1)
     } else { str = str.slice(1) }
   }
-  return [input.slice(0, input.length - str.length), str] // returns [listArg, rest of the string]
+  return [input.slice(0, input.length - str.length), str] // returns [listArg, rest of the string] // change to returning evaluated exp?
 }
 
 // get atom args and expression args
@@ -108,12 +108,13 @@ function ifParser (input) {
   return [failCase, input]
 }
 
+// special forms
 function formParser (op, input) {
   input = input.slice(op.length).trim()
   if (op === 'if') { return ifParser(input) }
 }
 
-const forms = ['if', 'define', 'quote', 'begin']
+const specialForms = ['if', 'define', 'quote']
 
 // evaluates a list expression and returns its value. a list expression = (operation arg1 arg2...) where arg is an atom or a list expression
 function expressionEval (input) { // input = (op arg1 arg2 ...)
@@ -121,14 +122,14 @@ function expressionEval (input) { // input = (op arg1 arg2 ...)
   const op = atomParser(input)[0].trim() // operation = +,-,> or other operations
   if (op === null) { console.log('error: invalid op'); return null } // not a valid operator
 
-  if (!forms.includes(op)) {
+  if (!specialForms.includes(op)) {
     if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
     input = atomParser(input)[1].trim() // input = arg1 arg2 ...)
     if (input === null) { return null }
     const args = getArgs(input) // getArgs('(arg1 arg2...)') = [exp1Val, exp2Val ...]
     if (args === null) { return null }
     return env[op](args) // op([exp1Val, exp2Val ...])
-  } else if (forms.includes(op)) { // if op belongs to (define, quote, if...)
+  } else if (specialForms.includes(op)) { // if op belongs to (define, quote, if...)
     const result = formParser(op, input)
     return result[0]
   }
@@ -141,10 +142,10 @@ function evaluate (input) { // input is a list expression (...)
   return expressionEval(input)
 }
 
-const input = '( if (> 30 45) (+ 45 56) abc)'
+const input = '( if (> (+ 15 15) 45) (+ 45 56) abc)'
 console.log(evaluate(input) === 'abc')
 
-// tests
+// // tests
 // let input
 // input = '(+ (+ 1 (- 1 1)) 2)' // 3
 // console.log(evaluate(input) === 3)
