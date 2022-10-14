@@ -82,33 +82,44 @@ function ifParser (input) {
   const temp = booleanParser(input)
   const test = temp[0]
   input = temp[1]
-  console.log('ifParser', test, input)
-  // const true
-  // if (test === true) {
 
-  // }
+  let passCase
+  if (input[0] === '(') {
+    const temp = getListArg(input)
+    passCase = expressionEval(temp[0])
+    input = temp[1].trim()
+  } else {
+    const temp = atomParser(input)
+    passCase = temp[0]
+    input = temp[1].trim()
+  }
+  // console.log('passCase', expressionEval(passCase), 'input', input)
+
+  let failCase
+  if (input[0] === '(') {
+    const temp = getListArg(input)
+    failCase = expressionEval(temp[0])
+    input = temp[1].trim()
+  } else {
+    const temp = atomParser(input)
+    failCase = temp[0]
+    input = temp[1].trim()
+  }
+  // console.log('passCase', passCase, 'failCase', failCase, 'input', input)
+
+  if (test) { return [passCase, input] }
+  return [failCase, input]
 }
 
 function formParser (op, input) {
   input = input.slice(op.length).trim()
-  if (op === 'if') {
-    // console.log('formParser', op)
-    // console.log('formParser', input)
-    ifParser(input)
-  }
+  if (op === 'if') { return ifParser(input) }
 }
 
 const forms = ['if', 'define', 'quote']
 
 // evaluates a list expression and returns its value. a list expression = (operation arg1 arg2...) where arg is an atom or a list expression
 function expressionEval (input) { // input = (op arg1 arg2 ...)
-  if (input[0] !== '(') { // atom expression
-    const temp = atomParser(input)
-    const atom = temp[0]
-    input = temp[1].trim()
-    return [atom, input]
-  }
-
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
   const op = atomParser(input)[0].trim() // operation = +,-,> or other operations
   if (op === null) { console.log('error: invalid op'); return null } // not a valid operator
@@ -121,8 +132,8 @@ function expressionEval (input) { // input = (op arg1 arg2 ...)
     if (args === null) { return null }
     return env[op](args) // op([exp1Val, exp2Val ...])
   } else if (forms.includes(op)) { // if op belongs to (define, quote, if...)
-    // input = input.slice(op.length).trim()
-    formParser(op, input)
+    const result = formParser(op, input)
+    return result[0]
   }
 }
 
@@ -133,5 +144,7 @@ function evaluate (input) { // input is a list expression (...)
 }
 
 // const input = '(sqrt (+ 3 ( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )))' // 5
-const input = '( if (> 30 45) (+ 45 56) oops)'
+// const input = '( if (> 30 45) (+ 45 56) failedOutput)'
+const input = '(if (= 12 12) (+ 78 2) 9)'
+// console.log('given input = ', input)
 console.log(evaluate(input))
