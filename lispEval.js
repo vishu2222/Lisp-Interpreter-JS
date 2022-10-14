@@ -101,9 +101,14 @@ function formParser (op, input) {
 const forms = ['if', 'define', 'quote']
 
 // evaluates a list expression and returns its value. a list expression = (operation arg1 arg2...) where arg is an atom or a list expression
-function expressionEval (input) {
-  
-  if (input[0] !== '(') { return null } // input = (op arg1 arg2 ...)
+function expressionEval (input) { // input = (op arg1 arg2 ...)
+  if (input[0] !== '(') { // atom expression
+    const temp = atomParser(input)
+    const atom = temp[0]
+    input = temp[1].trim()
+    return [atom, input]
+  }
+
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
   const op = atomParser(input)[0].trim() // operation = +,-,> or other operations
   if (op === null) { console.log('error: invalid op'); return null } // not a valid operator
