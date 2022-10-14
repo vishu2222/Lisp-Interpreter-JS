@@ -29,40 +29,6 @@ function atomParser (input) {
   return numberParser(input) || symbolParser(input) // an atom is a number or symbol
 }
 
-// seperating list expression argument
-function getListArg (input) {
-  let count = 1
-  let str = input.slice(1)
-  while (count !== 0) {
-    if (str[0] === '(') {
-      count++
-      str = str.slice(1)
-    } else if (str[0] === ')') {
-      count--
-      str = str.slice(1)
-    } else { str = str.slice(1) }
-  }
-  return [input.slice(0, input.length - str.length), str] // returns [listArg, rest of the string] // change to returning evaluated exp?
-}
-
-// get atom args and expression args
-function getArgs (input) { // input = arg1, arg2,..) args are either atom or list expressions
-  const args = []
-  while (input[0] !== ')') { // the last ) in the input is reached?
-    if (input[0] === '(') { // list expression
-      const arg = getListArg(input) //
-      args.push(expressionEval(arg[0]))
-      input = arg[1].trim()
-    } else { // get atom expression
-      const parsed = atomParser(input)
-      if (!parsed) { return null }
-      args.push(parsed[0])
-      input = parsed[1].trim()
-    }
-  }
-  return args
-}
-
 function booleanParser (input) {
   if (input.startsWith('true')) { return [true, input.slice(4)] }
   if (input.startsWith('#t')) { return [true, input.slice(2)] }
@@ -114,6 +80,40 @@ function formParser (op, input) {
   if (op === 'if') { return ifParser(input) }
 }
 
+// seperating list expression argument
+function getListArg (input) {
+  let count = 1
+  let str = input.slice(1)
+  while (count !== 0) {
+    if (str[0] === '(') {
+      count++
+      str = str.slice(1)
+    } else if (str[0] === ')') {
+      count--
+      str = str.slice(1)
+    } else { str = str.slice(1) }
+  }
+  return [input.slice(0, input.length - str.length), str] // returns [listArg, rest of the string] // change to returning evaluated exp?
+}
+
+// get atom args and expression args
+function getArgs (input) { // input = arg1, arg2,..) args are either atom or list expressions
+  const args = []
+  while (input[0] !== ')') { // the last ) in the input is reached?
+    if (input[0] === '(') { // list expression
+      const arg = getListArg(input) //
+      args.push(expressionEval(arg[0]))
+      input = arg[1].trim()
+    } else { // get atom expression
+      const parsed = atomParser(input)
+      if (!parsed) { return null }
+      args.push(parsed[0])
+      input = parsed[1].trim()
+    }
+  }
+  return args
+}
+
 const specialForms = ['if', 'define', 'quote']
 
 // evaluates a list expression and returns its value. a list expression = (operation arg1 arg2...) where arg is an atom or a list expression
@@ -136,34 +136,35 @@ function expressionEval (input) { // input = (op arg1 arg2 ...)
 }
 
 function evaluate (input) { // input is a list expression (...)
-  // console.log('given input = ', input)
   if (input[0] !== '(') { return null }
   input = input.replaceAll('(', '( ').replaceAll(')', ' )') // not required
   return expressionEval(input)
 }
 
-const input = '( if (> (+ 15 15) 45) (+ 45 56) abc)'
-console.log(evaluate(input) === 'abc')
+// const input = '( if (> (+ 15 15) 45) (+ 45 56) abc)'
+// console.log('given input = ', input)
+// console.log(evaluate(input) === 'abc')
 
-// // tests
-// let input
-// input = '(+ (+ 1 (- 1 1)) 2)' // 3
-// console.log(evaluate(input) === 3)
-// input = '(sqrt (/ 8 2))' // 2
-// console.log(evaluate(input) === 2)
-// input = '(* (/ 1 2) 3)' // 1.5
-// console.log(evaluate(input) === 1.5)
-// input = '(+ 1 (+ 2 3))' // 6
-// console.log(evaluate(input) === 6)
-// input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
-// console.log(evaluate(input) === 22)
-// input = '(+ (+ 1 (- 1 1)) 1)' // 2
-// console.log(evaluate(input) === 2)
-// input = '(* 5 10)' // 50
-// console.log(evaluate(input) === 50)
+// _____________________________________tests____________________________________________
 
-// // if
-// input = '( if (> 30 45) (+ 45 56) failedOutput)'
-// console.log(evaluate(input) === 'failedOutput')
-// input = '(if (= 12 12) (+ 78 2) 9)'
-// console.log(evaluate(input) === 80)
+let input
+input = '(+ (+ 1 (- 1 1)) 2)' // 3
+console.log(evaluate(input) === 3)
+input = '(sqrt (/ 8 2))' // 2
+console.log(evaluate(input) === 2)
+input = '(* (/ 1 2) 3)' // 1.5
+console.log(evaluate(input) === 1.5)
+input = '(+ 1 (+ 2 3))' // 6
+console.log(evaluate(input) === 6)
+input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
+console.log(evaluate(input) === 22)
+input = '(+ (+ 1 (- 1 1)) 1)' // 2
+console.log(evaluate(input) === 2)
+input = '(* 5 10)' // 50
+console.log(evaluate(input) === 50)
+
+// if
+input = '( if (> 30 45) (+ 45 56) failedOutput)'
+console.log(evaluate(input) === 'failedOutput')
+input = '(if (= 12 12) (+ 78 2) 9)'
+console.log(evaluate(input) === 80)
