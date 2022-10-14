@@ -21,7 +21,7 @@ function numberParser (input) {
 
 function symbolParser (input) {
   const output = input.match(/^[\w!$%&*/:<=?>~_^+-/*]+[\w\d]*\s/) // update regex to include other chars
-  if (output) { return [output[0], input.slice(output[0].length)] }
+  if (output) { return [output[0].trim(), input.slice(output[0].length).trim()] }
   return null
 }
 
@@ -83,7 +83,7 @@ function ifParser (input) {
   const test = temp[0]
   input = temp[1]
 
-  let passCase
+  let passCase, failCase
   if (input[0] === '(') {
     const temp = getListArg(input)
     passCase = expressionEval(temp[0])
@@ -93,9 +93,7 @@ function ifParser (input) {
     passCase = temp[0]
     input = temp[1].trim()
   }
-  // console.log('passCase', expressionEval(passCase), 'input', input)
 
-  let failCase
   if (input[0] === '(') {
     const temp = getListArg(input)
     failCase = expressionEval(temp[0])
@@ -105,7 +103,6 @@ function ifParser (input) {
     failCase = temp[0]
     input = temp[1].trim()
   }
-  // console.log('passCase', passCase, 'failCase', failCase, 'input', input)
 
   if (test) { return [passCase, input] }
   return [failCase, input]
@@ -116,7 +113,7 @@ function formParser (op, input) {
   if (op === 'if') { return ifParser(input) }
 }
 
-const forms = ['if', 'define', 'quote']
+const forms = ['if', 'define', 'quote', 'begin']
 
 // evaluates a list expression and returns its value. a list expression = (operation arg1 arg2...) where arg is an atom or a list expression
 function expressionEval (input) { // input = (op arg1 arg2 ...)
@@ -138,13 +135,34 @@ function expressionEval (input) { // input = (op arg1 arg2 ...)
 }
 
 function evaluate (input) { // input is a list expression (...)
+  // console.log('given input = ', input)
   if (input[0] !== '(') { return null }
   input = input.replaceAll('(', '( ').replaceAll(')', ' )') // not required
   return expressionEval(input)
 }
 
-// const input = '(sqrt (+ 3 ( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )))' // 5
-// const input = '( if (> 30 45) (+ 45 56) failedOutput)'
-const input = '(if (= 12 12) (+ 78 2) 9)'
-// console.log('given input = ', input)
-console.log(evaluate(input))
+const input = '( if (> 30 45) (+ 45 56) abc)'
+console.log(evaluate(input) === 'abc')
+
+// tests
+// let input
+// input = '(+ (+ 1 (- 1 1)) 2)' // 3
+// console.log(evaluate(input) === 3)
+// input = '(sqrt (/ 8 2))' // 2
+// console.log(evaluate(input) === 2)
+// input = '(* (/ 1 2) 3)' // 1.5
+// console.log(evaluate(input) === 1.5)
+// input = '(+ 1 (+ 2 3))' // 6
+// console.log(evaluate(input) === 6)
+// input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
+// console.log(evaluate(input) === 22)
+// input = '(+ (+ 1 (- 1 1)) 1)' // 2
+// console.log(evaluate(input) === 2)
+// input = '(* 5 10)' // 50
+// console.log(evaluate(input) === 50)
+
+// // if
+// input = '( if (> 30 45) (+ 45 56) failedOutput)'
+// console.log(evaluate(input) === 'failedOutput')
+// input = '(if (= 12 12) (+ 78 2) 9)'
+// console.log(evaluate(input) === 80)
