@@ -15,7 +15,7 @@ const env = {
 
 function numberParser (input) {
   const output = input.match(/^[-+]?([1-9]\d*|0)(\.\d+)?([eE][+-]?\d+)?/) // need to extend to complex range, a/b form , +|- nan.0, +|-inf.0
-  if (output) { return [Number(output[0]), input.slice(output[0].length)] }
+  if (output) { return [Number(output[0]), input.slice(output[0].length).trim()] }
   return null
 }
 
@@ -74,10 +74,16 @@ function ifParser (input) {
   return [failCase, input]
 }
 
+// (define symbol exp)
+function defineParser (input) {
+
+}
+
 // special forms
 function formParser (op, input) {
   input = input.slice(op.length).trim()
   if (op === 'if') { return ifParser(input) }
+  if (op === 'define') { defineParser(input) }
 }
 
 // seperating list expression argument
@@ -116,10 +122,12 @@ function getArgs (input) { // input = arg1, arg2,..) args are either atom or lis
 
 const specialForms = ['if', 'define', 'quote']
 
-// evaluates a list expression and returns its value. a list expression = (operation arg1 arg2...) where arg is an atom or a list expression
+// evaluates a list expression and returns its value.
+// A list expression = (operation arg1 arg2...) where arg is an atom or a list expression
 function expressionEval (input) { // input = (op arg1 arg2 ...)
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
-  const op = atomParser(input)[0].trim() // operation = +,-,> or other operations
+
+  const op = atomParser(input)[0] // operation = +, -, >, < etc.
   if (op === null) { console.log('error: invalid op'); return null } // not a valid operator
 
   if (specialForms.includes(op)) { // if op belongs to (define, quote, if...)
@@ -129,7 +137,7 @@ function expressionEval (input) { // input = (op arg1 arg2 ...)
 
   if (!specialForms.includes(op)) {
     if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
-    input = atomParser(input)[1].trim() // input = arg1 arg2 ...)
+    input = atomParser(input)[1] // input = arg1 arg2 ...)
     if (input === null) { return null }
     const args = getArgs(input) // getArgs('(arg1 arg2...)') = [exp1Val, exp2Val ...]
     if (args === null) { return null }
@@ -146,9 +154,8 @@ function evaluate (input) { // input is a list expression (...)
   return expressionEval(input)
 }
 
-// const input = '( if (> (+ 15 15) 45) (+ 45 56) abc)'
-// console.log('given input = ', input)
-// console.log(evaluate(input) === 'abc')
+// const input = '( define x (2 + 2))'
+// console.log(evaluate(input))
 
 // _____________________________________tests____________________________________________
 
@@ -175,7 +182,7 @@ console.log(evaluate(input) === 2)
 input = '(* 5 10)' // 50
 console.log(evaluate(input) === 50)
 
-// _____________________________________if____________________________________________
+// // _____________________________________if____________________________________________
 
 input = '( if (> 30 45) (+ 45 56) failedOutput)'
 console.log(evaluate(input) === 'failedOutput')
@@ -183,4 +190,4 @@ console.log(evaluate(input) === 'failedOutput')
 input = '(if (= 12 12) (+ 78 2) 9)'
 console.log(evaluate(input) === 80)
 
-// _____________________________________if____________________________________________
+// // _____________________________________if____________________________________________
