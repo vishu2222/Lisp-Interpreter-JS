@@ -122,6 +122,11 @@ function expressionEval (input) { // input = (op arg1 arg2 ...)
   const op = atomParser(input)[0].trim() // operation = +,-,> or other operations
   if (op === null) { console.log('error: invalid op'); return null } // not a valid operator
 
+  if (specialForms.includes(op)) { // if op belongs to (define, quote, if...)
+    const result = formParser(op, input)
+    return result[0]
+  }
+
   if (!specialForms.includes(op)) {
     if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
     input = atomParser(input)[1].trim() // input = arg1 arg2 ...)
@@ -129,10 +134,8 @@ function expressionEval (input) { // input = (op arg1 arg2 ...)
     const args = getArgs(input) // getArgs('(arg1 arg2...)') = [exp1Val, exp2Val ...]
     if (args === null) { return null }
     return env[op](args) // op([exp1Val, exp2Val ...])
-  } else if (specialForms.includes(op)) { // if op belongs to (define, quote, if...)
-    const result = formParser(op, input)
-    return result[0]
   }
+
   console.log('err: invalid expression')
   return null
 }
@@ -143,41 +146,41 @@ function evaluate (input) { // input is a list expression (...)
   return expressionEval(input)
 }
 
-const input = '( if (> (+ 15 15) 45) (+ 45 56) abc)'
-console.log('given input = ', input)
-console.log(evaluate(input) === 'abc')
+// const input = '( if (> (+ 15 15) 45) (+ 45 56) abc)'
+// console.log('given input = ', input)
+// console.log(evaluate(input) === 'abc')
 
 // _____________________________________tests____________________________________________
 
 // // Math
-// let input
-// input = '(+ (+ 1 (- 1 1)) 2)' // 3
-// console.log(evaluate(input) === 3)
+let input
+input = '(+ (+ 1 (- 1 1)) 2)' // 3
+console.log(evaluate(input) === 3)
 
-// input = '(sqrt (/ 8 2))' // 2
-// console.log(evaluate(input) === 2)
+input = '(sqrt (/ 8 2))' // 2
+console.log(evaluate(input) === 2)
 
-// input = '(* (/ 1 2) 3)' // 1.5
-// console.log(evaluate(input) === 1.5)
+input = '(* (/ 1 2) 3)' // 1.5
+console.log(evaluate(input) === 1.5)
 
-// input = '(+ 1 (+ 2 3))' // 6
-// console.log(evaluate(input) === 6)
+input = '(+ 1 (+ 2 3))' // 6
+console.log(evaluate(input) === 6)
 
-// input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
-// console.log(evaluate(input) === 22)
+input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
+console.log(evaluate(input) === 22)
 
-// input = '(+ (+ 1 (- 1 1)) 1)' // 2
-// console.log(evaluate(input) === 2)
+input = '(+ (+ 1 (- 1 1)) 1)' // 2
+console.log(evaluate(input) === 2)
 
-// input = '(* 5 10)' // 50
-// console.log(evaluate(input) === 50)
+input = '(* 5 10)' // 50
+console.log(evaluate(input) === 50)
 
-// // _____________________________________if____________________________________________
+// _____________________________________if____________________________________________
 
-// input = '( if (> 30 45) (+ 45 56) failedOutput)'
-// console.log(evaluate(input) === 'failedOutput')
+input = '( if (> 30 45) (+ 45 56) failedOutput)'
+console.log(evaluate(input) === 'failedOutput')
 
-// input = '(if (= 12 12) (+ 78 2) 9)'
-// console.log(evaluate(input) === 80)
+input = '(if (= 12 12) (+ 78 2) 9)'
+console.log(evaluate(input) === 80)
 
-// // _____________________________________if____________________________________________
+// _____________________________________if____________________________________________
