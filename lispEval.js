@@ -126,35 +126,22 @@ const specialForms = ['if', 'define', 'quote']
 // A list expression = (operation arg1 arg2...) where arg is an atom or a list expression
 function expressionEval (input) { // input = (op arg1 arg2 ...)
   if (input[0] !== '(') { return null }
-
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
 
-  const op = symbolParser(input)[0] // operation(op) = +, -, >, < etc.
-  if (op === null) { console.log('error: invalid op'); return null } // not a valid operator
-
-
-  // const parsedOp = symbolEval(input) // || expressionEval(input)
-  // if (parsedOp === null) { return null }
-  // const op = parsedOp[0]
-  // input = parsedOp[1]
-
+  const parsed = symbolParser(input) // operation(op) = +, -, >, < etc.
+  if (parsed === null) { console.log('error: invalid op'); return null } // not a valid operator
+  const op = parsed[0]
+  input = parsed[1]
 
   if (specialForms.includes(op)) { // if op belongs to (define, quote, if...)
     const result = formParser(op, input)
     return result[0]
   }
 
-  if (!specialForms.includes(op)) {
-    if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
-    input = atomParser(input)[1] // input = arg1 arg2 ...)
-    if (input === null) { return null }
-    const args = getArgs(input) // getArgs('(arg1 arg2...)') = [exp1Val, exp2Val ...]
-    if (args === null) { return null }
-    return env[op](args) // op([exp1Val, exp2Val ...])
-  }
-
-  console.log('err: invalid expression')
-  return null
+  if (!Object.keys(env).includes(op)) { return null } // op in enviornment?
+  const args = getArgs(input) // getArgs('(arg1 arg2...)') = [exp1Val, exp2Val ...]
+  if (args === null) { console.log('err: invalid expression'); return null }
+  return env[op](args) // op([exp1Val, exp2Val ...])
 }
 
 let input
