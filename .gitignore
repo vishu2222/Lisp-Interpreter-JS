@@ -108,3 +108,4 @@ new.lisp
 testCases.js
 parser.js
 a.js
+lispEvalCopy.js
