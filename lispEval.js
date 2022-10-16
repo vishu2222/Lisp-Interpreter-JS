@@ -40,7 +40,7 @@ function booleanParser (input) { // anything that is not false or #f is true in 
     input = temp[1].trim()
     const output = expressionEval(testArg)
     if (output === 'false' || output === '#f') { return [false, input] }
-    else { return [false, input] }
+    else { return [true, input] }
   }
   console.log('invalid test consdition in if')
   return null
@@ -146,6 +146,7 @@ function expressionEval (input, env = globalEnv) { // input = (op arg1 arg2 ...)
 
   if (specialForms.includes(op)) { // if op belongs to (define, quote, if...)
     const result = formParser(op, input)
+    if (result === null) { return null }
     return result[0]
   }
 
@@ -191,5 +192,8 @@ console.log(expressionEval(input) === 'failedOutput')
 
 input = '(if (= 12 12) (+ 78 2) 9)'
 console.log(expressionEval(input) === 80)
+
+input = '(if #f 1 0)'
+console.log(expressionEval(input) === 0)
 
 // // _________________________________________________________________________________
