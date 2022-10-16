@@ -29,7 +29,7 @@ function atomParser (input) {
   return numberParser(input) || symbolParser(input) // an atom is a number or symbol
 }
 
-function booleanParser (input) {
+function booleanParser (input) { // anything that is not false or #f is true in scheme
   if (input.startsWith('true')) { return [true, input.slice(4)] }
   if (input.startsWith('#t')) { return [true, input.slice(2)] }
   if (input.startsWith('#f')) { return [false, input.slice(2)] }
@@ -38,40 +38,51 @@ function booleanParser (input) {
     const temp = getListArg(input)
     const testArg = temp[0]
     input = temp[1].trim()
-    return [expressionEval(testArg), input]
+    const output = expressionEval(testArg)
+    if (output === 'false' || output === '#f') { return [false, input] }
+    else { return [false, input] }
   }
   console.log('invalid test consdition in if')
   return null
 }
 
-function ifParser (input) {
-  const temp = booleanParser(input)
-  const test = temp[0]
-  input = temp[1]
+function ifParser (input) { // testCondition passCase failCase)
+  const parsed = booleanParser(input)
+  if (parsed === null) { console.log('can\'t parse testCondition'); return null }
+  const test = parsed[0]
+  input = parsed[1]
 
-  let passCase, failCase
+  if (test === false) {
+    let failCase
+    if (input[0] === '(') {
+      const temp = getListArg(input)
+      if (temp === null) { return null }
+      failCase = expressionEval(temp[0])
+      if (failCase === null) { return null }
+      input = temp[1].trim()
+    } else {
+      const temp = atomParser(input)
+      if (temp === null) { return null }
+      failCase = temp[0]
+      input = temp[1].trim()
+    }
+    return [failCase, input]
+  }
+
+  let passCase
   if (input[0] === '(') {
     const temp = getListArg(input)
+    if (temp === null) { return null }
     passCase = expressionEval(temp[0])
+    if (passCase === null) { return null }
     input = temp[1].trim()
   } else {
     const temp = atomParser(input)
+    if (temp === null) { return null }
     passCase = temp[0]
     input = temp[1].trim()
   }
-
-  if (input[0] === '(') {
-    const temp = getListArg(input)
-    failCase = expressionEval(temp[0])
-    input = temp[1].trim()
-  } else {
-    const temp = atomParser(input)
-    failCase = temp[0]
-    input = temp[1].trim()
-  }
-
-  if (test) { return [passCase, input] }
-  return [failCase, input]
+  return [passCase, input]
 }
 
 // (define symbol exp)
@@ -175,8 +186,8 @@ console.log(expressionEval(input) === 50)
 
 // // _____________________________________if____________________________________________
 
-// input = '( if (> 30 45) (+ 45 56) failedOutput)'
-// console.log(expressionEval(input) === 'failedOutput')
+input = '( if (> 30 45) (+ 45 56) failedOutput)'
+console.log(expressionEval(input) === 'failedOutput')
 
 input = '(if (= 12 12) (+ 78 2) 9)'
 console.log(expressionEval(input) === 80)
