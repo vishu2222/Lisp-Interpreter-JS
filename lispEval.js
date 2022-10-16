@@ -129,7 +129,7 @@ function expressionEval (input) { // input = (op arg1 arg2 ...)
 
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
 
-  const op = atomParser(input)[0] // operation = +, -, >, < etc.
+  const op = symbolParser(input)[0] // operation(op) = +, -, >, < etc.
   if (op === null) { console.log('error: invalid op'); return null } // not a valid operator
 
 
@@ -171,27 +171,27 @@ console.log(expressionEval(input) === 3)
 input = '(sqrt (/ 8 2))' // 2
 console.log(expressionEval(input) === 2)
 
-// input = '(* (/ 1 2) 3)' // 1.5
-// console.log(expressionEval(input) === 1.5)
+input = '(* (/ 1 2) 3)' // 1.5
+console.log(expressionEval(input) === 1.5)
 
-// input = '(+ 1 (+ 2 3))' // 6
-// console.log(expressionEval(input) === 6)
+input = '(+ 1 (+ 2 3))' // 6
+console.log(expressionEval(input) === 6)
 
-// input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
-// console.log(expressionEval(input) === 22)
+input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
+console.log(expressionEval(input) === 22)
 
-// input = '(+ (+ 1 (- 1 1)) 1)' // 2
-// console.log(expressionEval(input) === 2)
+input = '(+ (+ 1 (- 1 1)) 1)' // 2
+console.log(expressionEval(input) === 2)
 
-// input = '(* 5 10)' // 50
-// console.log(expressionEval(input) === 50)
+input = '(* 5 10)' // 50
+console.log(expressionEval(input) === 50)
 
 // // _____________________________________if____________________________________________
 
 // input = '( if (> 30 45) (+ 45 56) failedOutput)'
 // console.log(expressionEval(input) === 'failedOutput')
 
-// input = '(if (= 12 12) (+ 78 2) 9)'
-// console.log(expressionEval(input) === 80)
+input = '(if (= 12 12) (+ 78 2) 9)'
+console.log(expressionEval(input) === 80)
 
 // // _________________________________________________________________________________
