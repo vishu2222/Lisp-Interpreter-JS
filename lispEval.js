@@ -125,10 +125,19 @@ const specialForms = ['if', 'define', 'quote']
 // evaluates a list expression and returns its value.
 // A list expression = (operation arg1 arg2...) where arg is an atom or a list expression
 function expressionEval (input) { // input = (op arg1 arg2 ...)
+  if (input[0] !== '(') { return null }
+
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
 
   const op = atomParser(input)[0] // operation = +, -, >, < etc.
   if (op === null) { console.log('error: invalid op'); return null } // not a valid operator
+
+
+  // const parsedOp = symbolEval(input) // || expressionEval(input)
+  // if (parsedOp === null) { return null }
+  // const op = parsedOp[0]
+  // input = parsedOp[1]
+
 
   if (specialForms.includes(op)) { // if op belongs to (define, quote, if...)
     const result = formParser(op, input)
@@ -148,46 +157,41 @@ function expressionEval (input) { // input = (op arg1 arg2 ...)
   return null
 }
 
-function evaluate (input) { // input is a list expression (...)
-  if (input[0] !== '(') { return null }
-  input = input.replaceAll('(', '( ').replaceAll(')', ' )') // not required
-  return expressionEval(input)
-}
-
-// const input = '( define x (2 + 2))'
+let input
+// input = '( define x (2 + 2))'
 // console.log(evaluate(input))
 
 // _____________________________________tests____________________________________________
 
 // // Math
-let input
+
 input = '(+ (+ 1 (- 1 1)) 2)' // 3
-console.log(evaluate(input) === 3)
+console.log(expressionEval(input) === 3)
 
 input = '(sqrt (/ 8 2))' // 2
-console.log(evaluate(input) === 2)
+console.log(expressionEval(input) === 2)
 
-input = '(* (/ 1 2) 3)' // 1.5
-console.log(evaluate(input) === 1.5)
+// input = '(* (/ 1 2) 3)' // 1.5
+// console.log(expressionEval(input) === 1.5)
 
-input = '(+ 1 (+ 2 3))' // 6
-console.log(evaluate(input) === 6)
+// input = '(+ 1 (+ 2 3))' // 6
+// console.log(expressionEval(input) === 6)
 
-input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
-console.log(evaluate(input) === 22)
+// input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
+// console.log(expressionEval(input) === 22)
 
-input = '(+ (+ 1 (- 1 1)) 1)' // 2
-console.log(evaluate(input) === 2)
+// input = '(+ (+ 1 (- 1 1)) 1)' // 2
+// console.log(expressionEval(input) === 2)
 
-input = '(* 5 10)' // 50
-console.log(evaluate(input) === 50)
-
-// // _____________________________________if____________________________________________
-
-input = '( if (> 30 45) (+ 45 56) failedOutput)'
-console.log(evaluate(input) === 'failedOutput')
-
-input = '(if (= 12 12) (+ 78 2) 9)'
-console.log(evaluate(input) === 80)
+// input = '(* 5 10)' // 50
+// console.log(expressionEval(input) === 50)
 
 // // _____________________________________if____________________________________________
+
+// input = '( if (> 30 45) (+ 45 56) failedOutput)'
+// console.log(expressionEval(input) === 'failedOutput')
+
+// input = '(if (= 12 12) (+ 78 2) 9)'
+// console.log(expressionEval(input) === 80)
+
+// // _________________________________________________________________________________
