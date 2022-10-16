@@ -81,7 +81,6 @@ function defineParser (input) {
 
 // special forms
 function formParser (op, input) {
-  input = input.slice(op.length).trim()
   if (op === 'if') { return ifParser(input) }
   if (op === 'define') { defineParser(input) }
 }
@@ -121,6 +120,7 @@ function getArgs (input) { // input = arg1, arg2,..) args are either atom or lis
 }
 
 const specialForms = ['if', 'define', 'quote']
+
 function expressionEval (input, env = globalEnv) { // input = (op arg1 arg2 ...) arg is an atom or expression
   if (input[0] !== '(') { return null }
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
@@ -128,7 +128,7 @@ function expressionEval (input, env = globalEnv) { // input = (op arg1 arg2 ...)
   const parsed = symbolParser(input) // operators(including special forms) are symbols
   if (parsed === null) { console.log('error parsing op'); return null } // not a valid operator
   const op = parsed[0]
-  input = parsed[1]
+  input = parsed[1] // input = arg1, arg2,...)
 
   if (specialForms.includes(op)) { // if op belongs to (define, quote, if...)
     const result = formParser(op, input)
@@ -136,7 +136,7 @@ function expressionEval (input, env = globalEnv) { // input = (op arg1 arg2 ...)
   }
 
   if (!Object.keys(env).includes(op)) { return null }
-  const args = getArgs(input) // getArgs('(arg1 arg2...)') = [exp1Val, exp2Val ...]
+  const args = getArgs(input) // getArgs('(arg1 arg2...)') = [exp1Val, exp2Val ...] // input = arg1, arg2,...)
   if (args === null) { console.log('err: invalid expression'); return null }
   return env[op](...args) // op([exp1Val, exp2Val ...])
 }
@@ -175,7 +175,7 @@ console.log(expressionEval(input) === 50)
 // input = '( if (> 30 45) (+ 45 56) failedOutput)'
 // console.log(expressionEval(input) === 'failedOutput')
 
-// input = '(if (= 12 12) (+ 78 2) 9)'
-// console.log(expressionEval(input) === 80)
+input = '(if (= 12 12) (+ 78 2) 9)'
+console.log(expressionEval(input) === 80)
 
 // // _________________________________________________________________________________
