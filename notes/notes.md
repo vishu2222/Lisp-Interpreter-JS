@@ -29,5 +29,8 @@
 * the exception chars can occur with an escape \
 * ' stops evaluation
 
+### Scheme Types
+* strings, numbers, symbols, lists  and other object types
+
 
 ### https://lisp-lang.org/learn/first-steps
