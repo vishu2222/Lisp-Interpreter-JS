@@ -86,10 +86,10 @@ function formParser (op, input) {
 }
 
 // seperating list expression argument
-function getListArg (input) {
+function getListArg (input) { // input = (getThisArg) ()...())
   let count = 1
-  let str = input.slice(1)
-  while (count !== 0) {
+  let str = input.slice(1) // str = getThisArg) ()...()) , count = 1 // getThisArg is anything between ( and a matching )
+  while (count !== 0) { // case when count !== 0?
     if (str[0] === '(') {
       count++
       str = str.slice(1)
@@ -104,16 +104,19 @@ function getListArg (input) {
 // get atom args and expression args
 function getArgs (input) { // input = arg1, arg2,..) args are either atom or list expressions
   const args = []
-  while (input[0] !== ')') { // the last ) in the input is reached?
-    if (input[0] === '(') { // list expression
-      const arg = getListArg(input) //
-      args.push(expressionEval(arg[0]))
-      input = arg[1].trim()
+  while (input[0] !== ')') { // i.e is while the last ')' in the input is not reached
+    if (input[0] === '(') { // if the arg is a list expression
+      const ParsedList = getListArg(input) //
+      if (ParsedList === null) { return null }
+      input = ParsedList[1].trim()
+      const arg = expressionEval(ParsedList[0])
+      if (arg === null) { return null }
+      args.push(arg)
     } else { // get atom expression
       const parsed = atomParser(input)
-      if (!parsed) { return null }
+      if (parsed === null) { return null }
       args.push(parsed[0])
-      input = parsed[1].trim()
+      input = parsed[1]
     }
   }
   return args
