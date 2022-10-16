@@ -1,5 +1,5 @@
 
-const env = {
+const globalEnv = {
   '+': (arr) => arr.reduce((sum, i) => sum + i, 0),
   '-': (arr) => arr[0] - arr[1],
   '*': (arr) => arr.reduce((mul, i) => mul * i, 1),
@@ -124,7 +124,7 @@ const specialForms = ['if', 'define', 'quote']
 
 // evaluates a list expression and returns its value.
 // A list expression = (operation arg1 arg2...) where arg is an atom or a list expression
-function expressionEval (input) { // input = (op arg1 arg2 ...)
+function expressionEval (input, env = globalEnv) { // input = (op arg1 arg2 ...)
   if (input[0] !== '(') { return null }
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
 
