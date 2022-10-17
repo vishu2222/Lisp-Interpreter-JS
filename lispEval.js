@@ -20,28 +20,31 @@ function numberParser (input) {
 }
 
 function symbolParser (input) {
-  const output = input.match(/^[\w!$%&*/:<=?>~_^+-/*]+[\w\d]*\s/) // update regex to include other chars
+  const output = input.match(/^[\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*\s/) // added # need to update regex to include other chars
   if (output) { return [output[0].trim(), input.slice(output[0].length).trim()] }
   return null
 }
-
-// console.log(symbolParser('abc ) '))
 
 function atomParser (input) {
   return numberParser(input) || symbolParser(input) // an atom is a number or symbol
 }
 
 function booleanParser (input) { // anything that is not false or #f is true in scheme
-  if (input.startsWith('true')) { return [true, input.slice(4)] }
-  if (input.startsWith('#t')) { return [true, input.slice(2)] }
-  if (input.startsWith('#f')) { return [false, input.slice(2)] }
-  if (input.startsWith('false')) { return [false, input.slice(5)] }
+  // if (input.startsWith('true')) { return [true, input.slice(4)] }
+  // if (input.startsWith('#t')) { return [true, input.slice(2)] } // atom parser cant parse #t
+  // if (input.startsWith('#f')) { return [false, input.slice(2)] }
+  // if (input.startsWith('false')) { return [false, input.slice(5)] }
+  if (input[0] !== '(') {
+    const temp = atomParser(input)
+    // console.log('temp', temp, 'input', input)
+    return [temp[0], temp[1]]
+  }
   if (input[0] === '(') {
     const temp = getListArg(input)
     const testArg = temp[0]
     input = temp[1].trim()
-    const output = expressionEval(testArg)
-    if (output === false) { return [false, input] }
+    const parsed = expressionEval(testArg)
+    if (parsed === false) { return [false, input] }
     else { return [true, input] }
   }
   console.log('invalid test consdition in if')
@@ -64,7 +67,7 @@ function ifParser (input) { // testCondition passCase failCase)
   const failCase = parsed[0]
   input = parsed[1]
 
-  if (testCondition === false) {
+  if (testCondition === false || testCondition === '#f') { //  || testCondition === '#f'
     if (failCase[0] === '(') { return [expressionEval(failCase), input] }
     return [failCase, input]
   }
@@ -190,8 +193,8 @@ console.log(evaluate(input) === 80)
 input = '(if #f 1 0)'
 console.log(evaluate(input) === 0)
 
-input = '(if #f 1 abc)'
-console.log(evaluate(input) === 'abc')
+// input = '(if #t abc 1)'
+// console.log(evaluate(input) === 'abc')
 
 // // _________________________________________________________________________________
 
