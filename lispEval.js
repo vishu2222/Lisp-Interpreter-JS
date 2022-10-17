@@ -30,13 +30,8 @@ function atomParser (input) {
 }
 
 function booleanParser (input) { // anything that is not false or #f is true in scheme
-  // if (input.startsWith('true')) { return [true, input.slice(4)] }
-  // if (input.startsWith('#t')) { return [true, input.slice(2)] } // atom parser cant parse #t
-  // if (input.startsWith('#f')) { return [false, input.slice(2)] }
-  // if (input.startsWith('false')) { return [false, input.slice(5)] }
   if (input[0] !== '(') {
     const temp = atomParser(input)
-    // console.log('temp', temp, 'input', input)
     return [temp[0], temp[1]]
   }
   if (input[0] === '(') {
@@ -78,7 +73,6 @@ function ifParser (input) { // testCondition passCase failCase)
 
 // special forms
 function formParser (op, input) {
-  // console.log(input, op)
   if (op === 'if') { return ifParser(input) }
   // if (op === 'define') { defineParser(input) }
 }
@@ -141,10 +135,8 @@ function expressionEval (input, env = globalEnv) { // input = (op arg1 arg2 ...)
   if (!Object.keys(env).includes(op)) { return null }
   const args = getArgs(input) // getArgs('(arg1 arg2...)') = [exp1Val, exp2Val ...] // input = arg1, arg2,...)
   if (args === null) { console.log('err: invalid expression'); return null }
-  // console.log('op:', op, 'args:', ...args, 'env[op](...args):', env[op](...args))
   return env[op](...args) // op([exp1Val, exp2Val ...])
 }
-// console.log(expressionEval('( > 30 45 )'))
 
 function evaluate (input) {
   input = input.replaceAll('(', '( ').replaceAll(')', ' )')
@@ -193,8 +185,7 @@ console.log(evaluate(input) === 80)
 input = '(if #f 1 0)'
 console.log(evaluate(input) === 0)
 
-// input = '(if #t abc 1)'
-// console.log(evaluate(input) === 'abc')
+input = '(if #t abc 1)'
+console.log(evaluate(input) === 'abc')
 
 // // _________________________________________________________________________________
-
