@@ -13,22 +13,26 @@ const globalEnv = {
   abs: (a) => Math.abs(a)
 }
 
+// numberParser
 function numberParser (input) {
   const output = input.match(/^[-+]?([1-9]\d*|0)(\.\d+)?([eE][+-]?\d+)?/) // need to extend to complex range, a/b form , +|- nan.0, +|-inf.0
   if (output) { return [Number(output[0]), input.slice(output[0].length).trim()] }
   return null
 }
 
+// symbolParser
 function symbolParser (input) {
-  const output = input.match(/^[\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*\s/) // added # need to update regex to include other chars
+  const output = input.match(/^[\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*\s/) // need to verify for all cases
   if (output) { return [output[0].trim(), input.slice(output[0].length).trim()] }
   return null
 }
 
+// atomParser
 function atomParser (input) {
   return numberParser(input) || symbolParser(input) // an atom is a number or symbol
 }
 
+// booleanParser
 function booleanParser (input) { // anything that is not false or #f is true in scheme
   if (input[0] !== '(') {
     const temp = atomParser(input)
@@ -46,6 +50,7 @@ function booleanParser (input) { // anything that is not false or #f is true in 
   return null
 }
 
+// ifParser
 function ifParser (input) { // testCondition passCase failCase)
   let parsed = booleanParser(input)
   if (parsed === null) { console.log('can\'t parse testCondition'); return null }
@@ -71,13 +76,18 @@ function ifParser (input) { // testCondition passCase failCase)
   return [passCase, input]
 }
 
+// defineParser
+function defineParser (input) {
+  const env = Object.create(globalEnv)
+}
+
 // special forms
 function formParser (op, input) {
   if (op === 'if') { return ifParser(input) }
-  // if (op === 'define') { defineParser(input) }
+  if (op === 'define') { return defineParser(input) }
 }
 
-// seperating list expression argument
+// returns first list expression argument from an input
 function getListArg (input) { // input = (getThisArg) ()...())
   if (input[0] !== '(') { return null }
   let count = 1
@@ -117,6 +127,7 @@ function getArgs (input) { // input = arg1, arg2,..) args are either atom or lis
 
 const specialForms = ['if', 'define', 'quote']
 
+// expression evaluater
 function expressionEval (input, env = globalEnv) { // input = (op arg1 arg2 ...) arg is an atom or expression
   if (input === null || input[0] !== '(') { return null }
   input = input.slice(1).trim() // input = op arg1 arg2 ...)
@@ -138,6 +149,7 @@ function expressionEval (input, env = globalEnv) { // input = (op arg1 arg2 ...)
   return env[op](...args) // op([exp1Val, exp2Val ...])
 }
 
+// evaluate input
 function evaluate (input) {
   input = input.replaceAll('(', '( ').replaceAll(')', ' )')
   console.log('input:', input)
@@ -146,8 +158,8 @@ function evaluate (input) {
 }
 
 let input
-// input = '( define x (2 + 2))'
-// console.log(evaluate(input))
+input = '( define x (2 + 2))'
+console.log(evaluate(input))
 
 // _____________________________________tests____________________________________________
 
