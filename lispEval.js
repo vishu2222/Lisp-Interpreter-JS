@@ -1,5 +1,5 @@
 
-const globalEnv = {
+let globalEnv = {
   '+': (...args) => args.reduce((sum, i) => sum + i),
   '-': (...args) => args.reduce((sum, i) => sum - i),
   '*': (...args) => args.reduce((mul, i) => mul * i, 1),
@@ -27,6 +27,7 @@ function numberEval (num) { // add validation for num
 
 // symbolEval
 function symbolEval (atom, env) { // add validation for symbol
+  if (Object.keys(Object.getPrototypeOf(env)).includes(atom)) { return env[atom] }
   if (Object.keys(env).includes(atom)) { return env[atom] }
   return null
 }
@@ -92,16 +93,28 @@ function ifParser (input, env) {
   return expressionEval(passArg, env)
 }
 
-// defineParser // (define <variable> <expression>)
-function defineParser (input, env) {
-  console.log(input)
-}
-
 // special forms
 function formParser (op, input, env) {
   if (op === 'if') { return ifParser(input, env) }
   if (op === 'define') { return defineParser(input, env) }
   return null
+}
+
+// defineParser // (define <variable> <expression>)
+function defineParser (input, env) {
+  let parsedExpression = getExpression(input)
+  const variable = parsedExpression[0]
+  input = parsedExpression[1]
+
+  parsedExpression = getExpression(input)
+  const expression = parsedExpression[0]
+  input = parsedExpression[1]
+
+  const localEnv = Object.create(globalEnv)
+  localEnv[variable] = expressionEval(expression, env)
+
+  globalEnv = localEnv
+  return `${variable} = ${localEnv[variable]}`
 }
 
 // compoundExpEval
@@ -135,8 +148,9 @@ function main (input) {
   return expressionEval(input, globalEnv)
 }
 
-const input = '(define x (+ 5 5))'
+const input = '(define x (+ 5 5) (* x x))'
 console.log(main(input))
+console.log(main('x'))
 
 // console.log(Object.keys(globalEnv).includes('#f'))
 // ______________________________Math Cases_______________________________
