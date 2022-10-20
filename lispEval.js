@@ -17,7 +17,7 @@ const globalEnv = { // ignored arg validations in globalEnv
   abs: (...args) => Math.abs(args[0]),
   pi: Math.PI
 }
-const specialForms = ['if', 'define', 'quote', 'lambda']
+const specialForms = ['if', 'define', 'quote', 'lambda', 'set!']
 
 // numberEval
 function numberEval (num) { // ignored regex validation for num
@@ -106,7 +106,7 @@ function defineParser (input, env) {
   return `${variable} defined`
 }
 
-// lambdaParser (lambda (args) body) or ((lambda (args) body) (argVals))
+// lambdaParser (lambda (args) body) or ((lambda (args) body) (parameters))
 function lambdaParser (input, env) { // input = (arg1 arg2...) (body)
   if (input[0] !== '(') { return null }
   const parsed = getExpression(input) // parsed[0] = (arg1 arg2...)
@@ -123,10 +123,25 @@ function lambdaParser (input, env) { // input = (arg1 arg2...) (body)
     funcArgs.forEach((arg, index) => { localEnv[args[index]] = arg })
     return expressionEval(body, localEnv)
   }
+
   input = input.slice(1).trim()
   if (input.length === 0) { return lambdaFunc }
   const parameters = getArgs(input).map(i => expressionEval(i, env))
   return lambdaFunc(...parameters)
+}
+
+// (quote <datum>)  // input = ...)
+function quoteParser (input) { return input.trim().slice(0, input.length - 1).trim() }
+
+// set (set! symbol exp)
+function setParser (input, env) {
+  const getExp = getExpression(input)
+  const variable = getExp[0]
+  input = getExp[1]
+  console.log(env[variable])
+  if (env[variable] === undefined) { return null }
+  env[variable] = expressionEval(getExpression(input)[0], env)
+  return `${variable} Set`
 }
 
 // special forms
@@ -134,7 +149,8 @@ function formParser (op, input, env) {
   if (op === 'if') { return ifParser(input, env) }
   if (op === 'define') { return defineParser(input, env) }
   if (op === 'lambda') { return lambdaParser(input, env) }
-  return null
+  if (op === 'quote') { return quoteParser(input) }
+  if (op === 'set!') { return setParser(input, env) }
 }
 
 // compoundExpEval // evaluates a lisp expression enclosed in braces
@@ -164,14 +180,11 @@ function expressionEval (expression, env) {
 
 // main
 function main (input) {
-  console.log('Given input:', input)
+  // console.log('Given input:', input)
   input = input.replaceAll('(', '( ').replaceAll(')', ' )') // * or fix 'atom)' in getExpression()
   return expressionEval(input, globalEnv)
 }
 
-const input = '(define circle-area (lambda (r) (* pi (* r r))))'
-console.log(main(input))
-console.log(main('( circle-area 3 )'))
 // ______________________________Math Cases_______________________________
 // let input
 
@@ -220,15 +233,20 @@ console.log(main('( circle-area 3 )'))
 
 // let input
 
-// input = '(define define define)'
-// console.log(main(input))
-
-// input = '(define define 90)'
+// input = '(define a 90)'
 // console.log(main(input))
 
 // input = '(define x (+ 5 5) (* x x))'
 // console.log(main(input))
 
+// const input = '(define circle-area (lambda (r) (* pi (* r r))))'
+// console.log(main(input))
+// console.log(main('(circle-area 3)'))
+
+// const input = '(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))'
+// console.log(main(input))
+// console.log(main('(fact 10)'))
+// console.log(main('(fact 100)'))
 // ____________________________lambda__________________________________________
 
 // let input
@@ -237,3 +255,20 @@ console.log(main('( circle-area 3 )'))
 
 // input = '(lambda (x) (+ x x))'
 // console.log(main(input))
+
+// _____________________________________quote____________________________________
+
+// let input
+
+// input = '(quote #(a b c))'
+// console.log(main(input))
+
+// input = '(quote (+ 1 2)) '
+// console.log(main(input))
+
+//  _____________________________________set!____________________________________
+
+// main('(define r 1)')
+const input = '(set! r 10)'
+main(input)
+// console.log(main('(+ r r )'))
