@@ -20,21 +20,20 @@ let globalEnv = {
 const specialForms = ['if', 'define', 'quote', 'lambda']
 
 // numberEval
-function numberEval (num) { // add validation for num
+function numberEval (num) { // add regex validation for num
   if (Number(num) === null || isNaN(Number(num))) { return null }
   return Number(num)
 }
 
 // symbolEval
-function symbolEval (atom, env) { // add validation for symbol
-  if (Object.keys(Object.getPrototypeOf(env)).includes(atom)) { return env[atom] }
-  if (Object.keys(env).includes(atom)) { return env[atom] }
-  return null
+function symbolEval (atom, env) { // add regex validation for symbol
+  if (env[atom] === undefined) { return null }
+  return env[atom]
 }
 
 // stringParser
 function stringEval (input) {
-  const mached = input.match(/".+"/) // [\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*
+  const mached = input.match(/".+"/) // add regex validation for string [\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*
   if (mached) { return mached[0].trim() }
   return null
 }
@@ -93,13 +92,6 @@ function ifParser (input, env) {
   return expressionEval(passArg, env)
 }
 
-// special forms
-function formParser (op, input, env) {
-  if (op === 'if') { return ifParser(input, env) }
-  if (op === 'define') { return defineParser(input, env) }
-  return null
-}
-
 // defineParser // (define <variable> <expression>)
 function defineParser (input, env) {
   let parsedExpression = getExpression(input)
@@ -115,6 +107,19 @@ function defineParser (input, env) {
 
   globalEnv = localEnv
   return `${variable} = ${localEnv[variable]}`
+}
+
+// lambdaParser (lambda (symbol...) (body))
+function lambdaParser (input) {
+
+}
+
+// special forms
+function formParser (op, input, env) {
+  if (op === 'if') { return ifParser(input, env) }
+  if (op === 'define') { return defineParser(input, env) }
+  if (op === 'lambda') { return lambdaParser(input, env) }
+  return null
 }
 
 // compoundExpEval
@@ -144,13 +149,13 @@ function expressionEval (expression, env) {
 // main
 function main (input) {
   console.log('Given input:', input, '\n')
-  input = input.replaceAll('(', '( ').replaceAll(')', ' )') // * fix 'atom)' in getExpression()
+  input = input.replaceAll('(', '( ').replaceAll(')', ' )') // * or fix 'atom)' in getExpression()
   return expressionEval(input, globalEnv)
 }
 
-const input = '(define x (+ 5 5) (* x x))'
-console.log(main(input))
-console.log(main('x'))
+// const input = '(define x (+ 5 5) (* x x))'
+// console.log(main(input))
+// console.log(main('x'))
 
 // console.log(Object.keys(globalEnv).includes('#f'))
 // ______________________________Math Cases_______________________________
