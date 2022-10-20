@@ -5,5 +5,5 @@
 
 ## References
 * http://norvig.com/lispy.html
-* https://scheme.com/tspl4/intro.html#./intro:h1
+* https://scheme.com/tspl4/
 * https://groups.csail.mit.edu/mac/ftpdir/scheme-7.4/doc-html/scheme_3.html#SEC33
