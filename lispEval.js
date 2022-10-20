@@ -107,7 +107,7 @@ function defineParser (input, env) {
   return `${variable} = ${env[variable]}`
 }
 
-// lambdaParser (lambda (args) body) // ((lambda (args) body) (argVals))
+// lambdaParser (lambda (args) body) or ((lambda (args) body) (argVals))
 function lambdaParser (input, env) { // input = (args) (body)
   if (input[0] !== '(') { return null }
 
@@ -126,24 +126,17 @@ function lambdaParser (input, env) { // input = (args) (body)
   const body = parcedBody[0]
   input = parcedBody[1]
 
-  // console.log(input)
-  const localEnv = Object.create(env)
   function lambdaFunc (...funcArgs) {
+    const localEnv = Object.create(env)
     funcArgs.forEach((arg, index) => { localEnv[args[index]] = arg })
-    console.log('funcArgs:', funcArgs)
-    console.log('localEnv:', localEnv)
-    console.log('body:', body)
-    console.log('bodyEvalGlob', expressionEval(body, globalEnv))
-    console.log('bodyEvalLocal', expressionEval(body, localEnv))
-    // return expressionEval(body, localEnv)
-    return 'done'
+    return expressionEval(body, localEnv)
   }
-  return lambdaFunc(5)
-}
 
-// const input = '((lambda (x) (+ x x)) (* 3 4))' // 24
-// const input = '(lambda (x) (+ x x))'
-// console.log(main(input))
+  input = input.slice(1).trim()
+  if (input.length === 0) { return lambdaFunc }
+  const parameters = getArgs(input).map(i => expressionEval(i, env))
+  return lambdaFunc(...parameters)
+}
 
 // special forms
 function formParser (op, input, env) {
@@ -154,9 +147,9 @@ function formParser (op, input, env) {
 }
 
 // compoundExpEval
-function compoundExpEval (input, env) {
+function compoundExpEval (input, env) { // input = '(...)'
   input = input.slice(1).trim()
-  if (input[0] === '(') { expressionEval(input, env) }
+  if (input[0] === '(') { return expressionEval(input, env) }
   const parsedExp = getExpression(input)
   if (parsedExp === null) { return null }
   let op
@@ -164,7 +157,7 @@ function compoundExpEval (input, env) {
   if (specialForms.includes(op)) {
     return formParser(op, input, env)
   }
-  if (env[op] !== undefined) { // if (env[op] !== undefined)
+  if (env[op] !== undefined) {
     const parsedArgs = getArgs(input)
     const args = []
     parsedArgs.forEach(arg => { args.push(expressionEval(arg, env)) })
@@ -180,23 +173,11 @@ function expressionEval (expression, env) {
 
 // main
 function main (input) {
-  console.log('Given input:', input, '\n')
+  console.log('Given input:', input)
   input = input.replaceAll('(', '( ').replaceAll(')', ' )') // * or fix 'atom)' in getExpression()
   return expressionEval(input, globalEnv)
 }
 
-const input = '( + x x )'
-const localEnv = Object.create(globalEnv)
-localEnv.x = 5
-console.log('input:', input)
-console.log('env:', localEnv)
-console.log(expressionEval(input, localEnv))
-
-// const input = '(define x (+ 5 5) (* x x))'
-// console.log(main(input))
-// console.log(main('x'))
-
-// console.log(Object.keys(globalEnv).includes('#f'))
 // ______________________________Math Cases_______________________________
 // let input
 
@@ -226,7 +207,7 @@ console.log(expressionEval(input, localEnv))
 
 // input = '(* 5 10)' // 50
 // console.log(main(input) === 50)
-// _____________________________________if______________________________________
+// _____________________________________if_______________________________
 
 // let input
 // input = '( if (> 30 45) (+ 1 1) "failedOutput")'
@@ -241,4 +222,24 @@ console.log(expressionEval(input, localEnv))
 // input = '(if #t "abc" 1)'
 // console.log(main(input) === '"abc"')
 
-// ______________________________________________________________________
+// ____________________________define__________________________________________
+
+// let input
+
+// input = '(define define define)'
+// console.log(main(input))
+
+// input = '(define define 90)'
+// console.log(main(input))
+
+// input = '(define x (+ 5 5) (* x x))'
+// console.log(main(input))
+
+// ____________________________lambda__________________________________________
+
+// let input
+// input = '((lambda (x) (+ x x)) (* 3 4))' // 24
+// console.log(main(input))
+
+// input = '(lambda (x) (+ x x))'
+// console.log(main(input))
