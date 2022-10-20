@@ -1,5 +1,5 @@
 
-const globalEnv = {
+const globalEnv = { // ignored arg validations in globalEnv
   '+': (...args) => args.reduce((sum, i) => sum + i),
   '-': (...args) => args.reduce((sum, i) => sum - i),
   '*': (...args) => args.reduce((mul, i) => mul * i, 1),
@@ -20,20 +20,20 @@ const globalEnv = {
 const specialForms = ['if', 'define', 'quote', 'lambda']
 
 // numberEval
-function numberEval (num) { // add regex validation for num
+function numberEval (num) { // ignored regex validation for num
   if (isNaN(Number(num))) { return null }
   return Number(num)
 }
 
 // symbolEval
-function symbolEval (atom, env) { // add regex validation for symbol
+function symbolEval (atom, env) { // ignored regex validation for symbol
   if (env[atom] === undefined) { return null }
   return env[atom]
 }
 
 // stringEval
 function stringEval (input) {
-  const mached = input.match(/".+"/) // add regex validation for string [\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*
+  const mached = input.match(/".*"/) // ignored regex validation for string [\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*
   if (mached) { return mached[0].trim() }
   return null
 }
@@ -45,7 +45,7 @@ function atomEval (input, env) {
   return numberEval(input) || symbolEval(input, env) || stringEval(input) // potential errors when evaluaters return null or false when using || operator
 }
 
-// getExpression // consumes an input and returns first expression enclosed in matching braces
+// getExpression // consumes an input and returns first expression enclosed in matching braces and rest of input
 function getExpression (input) {
   input = input.trim()
   if (input[0] !== '(') {
@@ -104,7 +104,6 @@ function defineParser (input, env) {
 
   env[variable] = expressionEval(expression, env) // this can override an env variable // Section 2.9. Assignment (https://scheme.com/tspl4/start.html#./start:h4) (5.2.1  Top level definitions)  (https://schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_sec_5.2)
   return `${variable} defined`
-  // return `${variable} = ${env[variable]}`
 }
 
 // lambdaParser (lambda (args) body) or ((lambda (args) body) (argVals))
