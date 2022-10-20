@@ -102,11 +102,8 @@ function defineParser (input, env) {
   const expression = parsedExpression[0]
   input = parsedExpression[1]
 
-  const localEnv = Object.create(globalEnv)
-  localEnv[variable] = expressionEval(expression, env)
-
-  globalEnv = localEnv
-  return `${variable} = ${localEnv[variable]}`
+  env[variable] = expressionEval(expression, env) // this can override an env variable
+  return `${variable} = ${env[variable]}`
 }
 
 // lambdaParser (lambda (symbol...) (body))
