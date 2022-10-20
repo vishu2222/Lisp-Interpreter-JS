@@ -15,7 +15,7 @@ const globalEnv = {
   false: false,
   sqrt: (...args) => Math.sqrt(args[0]),
   abs: (...args) => Math.abs(args[0]),
-  pi: 3.14
+  pi: Math.PI
 }
 const specialForms = ['if', 'define', 'quote', 'lambda']
 
@@ -31,21 +31,21 @@ function symbolEval (atom, env) { // add regex validation for symbol
   return env[atom]
 }
 
-// stringParser
+// stringEval
 function stringEval (input) {
   const mached = input.match(/".+"/) // add regex validation for string [\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*
   if (mached) { return mached[0].trim() }
   return null
 }
 
-// atomEval // potential errors when evaluaters return null or false in ||
+// atomEval
 function atomEval (input, env) {
   if (numberEval(input) === 0) { return 0 }
   if (symbolEval(input, env) === false) { return false }
-  return numberEval(input) || symbolEval(input, env) || stringEval(input)
+  return numberEval(input) || symbolEval(input, env) || stringEval(input) // potential errors when evaluaters return null or false when using || operator
 }
 
-// getExpression
+// getExpression // consumes an input and returns first expression enclosed in matching braces
 function getExpression (input) {
   input = input.trim()
   if (input[0] !== '(') {
@@ -63,7 +63,7 @@ function getExpression (input) {
   return [input.slice(0, input.length - str.length).trim(), str.trim()]
 }
 
-// getArgs
+// getArgs // returns all arguments in input {inp = arg1, arg2, ...)} occuring before an unmatched )
 function getArgs (input) {
   const args = []
   while (input[0] !== ')') {
@@ -103,7 +103,8 @@ function defineParser (input, env) {
   input = parsedExpression[1]
 
   env[variable] = expressionEval(expression, env) // this can override an env variable // Section 2.9. Assignment (https://scheme.com/tspl4/start.html#./start:h4) (5.2.1  Top level definitions)  (https://schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_sec_5.2)
-  return `${variable} = ${env[variable]}`
+  return `${variable} defined`
+  // return `${variable} = ${env[variable]}`
 }
 
 // lambdaParser (lambda (args) body) or ((lambda (args) body) (argVals))
@@ -137,7 +138,7 @@ function formParser (op, input, env) {
   return null
 }
 
-// compoundExpEval
+// compoundExpEval // evaluates a lisp expression enclosed in braces
 function compoundExpEval (input, env) { // input = '(...)'
   input = input.slice(1).trim()
   if (input[0] === '(') { return expressionEval(input, env) }
@@ -156,7 +157,7 @@ function compoundExpEval (input, env) { // input = '(...)'
   }
 }
 
-// expressionEval
+// expressionEval // call atomEval if input = identifier and compoundExpEval if input = '(...)'
 function expressionEval (expression, env) {
   if (expression[0] === '(') { return compoundExpEval(expression, env) }
   return atomEval(expression, env)
@@ -169,6 +170,9 @@ function main (input) {
   return expressionEval(input, globalEnv)
 }
 
+const input = '(define circle-area (lambda (r) (* pi (* r r))))'
+console.log(main(input))
+console.log(main('( circle-area 3 )'))
 // ______________________________Math Cases_______________________________
 // let input
 
