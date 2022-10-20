@@ -21,8 +21,7 @@ const specialForms = ['if', 'define', 'quote', 'lambda']
 
 // numberEval
 function numberEval (num) { // add regex validation for num
-  if (Number(num) === null || isNaN(Number(num))) { return null }
-  // if (isNaN(Number(num))) { return null }
+  if (isNaN(Number(num))) { return null }
   return Number(num)
 }
 
@@ -108,9 +107,8 @@ function defineParser (input, env) {
 }
 
 // lambdaParser (lambda (args) body) or ((lambda (args) body) (argVals))
-function lambdaParser (input, env) { // input = (args) (body)
+function lambdaParser (input, env) { // input = (arg1 arg2...) (body)
   if (input[0] !== '(') { return null }
-
   const parsed = getExpression(input) // parsed[0] = (arg1 arg2...)
   input = parsed[1] // input = (body) // input = (body)) (exp))
   const parsedArgs = parsed[0].slice(1).trim() // parsedArgs = arg1 arg2...)
@@ -125,7 +123,6 @@ function lambdaParser (input, env) { // input = (args) (body)
     funcArgs.forEach((arg, index) => { localEnv[args[index]] = arg })
     return expressionEval(body, localEnv)
   }
-
   input = input.slice(1).trim()
   if (input.length === 0) { return lambdaFunc }
   const parameters = getArgs(input).map(i => expressionEval(i, env))
@@ -231,9 +228,9 @@ function main (input) {
 
 // ____________________________lambda__________________________________________
 
-let input
-input = '((lambda (x) (+ x x)) (* 3 4))' // 24
-console.log(main(input))
+// let input
+// input = '((lambda (x) (+ x x)) (* 3 4))' // 24
+// console.log(main(input))
 
 // input = '(lambda (x) (+ x x))'
 // console.log(main(input))
