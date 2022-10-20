@@ -23,7 +23,7 @@ function numberParser (input) {
 
 // symbolParser
 function symbolParser (input) {
-  const output = input.match(/^[\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*\s/) // need to verify for all cases
+  const output = input.match(/^[\w!$%&*/:<=?>~_^+-/*]+[\w\d]*\s/) // need to verify for all cases
   if (output) { return [output[0].trim(), input.slice(output[0].length).trim()] } // need to evaluate and return
   return null
 }
