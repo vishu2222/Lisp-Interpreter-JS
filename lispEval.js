@@ -113,15 +113,9 @@ function lambdaParser (input, env) { // input = (args) (body)
 
   const parsed = getExpression(input) // parsed[0] = (arg1 arg2...)
   input = parsed[1] // input = (body) // input = (body)) (exp))
-  let parsedArgs = parsed[0].slice(1).trim() // parsedArgs = arg1 arg2...)
+  const parsedArgs = parsed[0].slice(1).trim() // parsedArgs = arg1 arg2...)
 
-  const args = []
-  while (parsedArgs[0] !== ')') {
-    const temp = parsedArgs.split(' ')[0]
-    args.push(temp)
-    parsedArgs = parsedArgs.slice(temp.length).trim()
-  }
-
+  const args = getArgs(parsedArgs)
   const parcedBody = getExpression(input)
   const body = parcedBody[0]
   input = parcedBody[1]
@@ -237,9 +231,9 @@ function main (input) {
 
 // ____________________________lambda__________________________________________
 
-// let input
-// input = '((lambda (x) (+ x x)) (* 3 4))' // 24
-// console.log(main(input))
+let input
+input = '((lambda (x) (+ x x)) (* 3 4))' // 24
+console.log(main(input))
 
 // input = '(lambda (x) (+ x x))'
 // console.log(main(input))
