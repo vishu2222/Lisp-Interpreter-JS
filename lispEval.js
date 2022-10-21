@@ -16,24 +16,25 @@ const globalEnv = { // ignored arg validations in globalEnv
   sqrt: (...args) => Math.sqrt(args[0]),
   abs: (...args) => Math.abs(args[0]),
   pi: Math.PI
+  // addpi:(x) => x +
 }
 const specialForms = ['if', 'define', 'quote', 'lambda', 'set!']
 
 // numberEval
-function numberEval (num) { // ignored regex validation for num
+function numberEval (num) { // ignored num validation
   if (isNaN(Number(num))) { return null }
   return Number(num)
 }
 
 // symbolEval
-function symbolEval (atom, env) { // ignored regex validation for symbol
+function symbolEval (atom, env) { // ignored symbol validation
   if (env[atom] === undefined) { return null }
   return env[atom]
 }
 
 // stringEval
 function stringEval (input) {
-  const mached = input.match(/".*"/) // ignored regex validation for string [\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*
+  const mached = input.match(/".*"/) // ignored string validation  [\w!$%&*/:<=?>~_^+-/*#]+[\w\d]*
   if (mached) { return mached[0].trim() }
   return null
 }
@@ -42,7 +43,7 @@ function stringEval (input) {
 function atomEval (input, env) {
   if (numberEval(input) === 0) { return 0 }
   if (symbolEval(input, env) === false) { return false }
-  return numberEval(input) || symbolEval(input, env) || stringEval(input) // potential errors when evaluaters return null or false when using || operator
+  return numberEval(input) || symbolEval(input, env) || stringEval(input)
 }
 
 // getExpression // consumes an input and returns first expression enclosed in matching braces and rest of input
@@ -131,14 +132,13 @@ function lambdaParser (input, env) { // input = (arg1 arg2...) (body)
 }
 
 // (quote <datum>)  // input = ...)
-function quoteParser (input) { return input.trim().slice(0, input.length - 1).trim() }
+function quoteParser (input) { return input.slice(0, input.length - 1).trim() }
 
 // set (set! symbol exp)
 function setParser (input, env) {
   const getExp = getExpression(input)
   const variable = getExp[0]
   input = getExp[1]
-  console.log(env[variable])
   if (env[variable] === undefined) { return null }
   env[variable] = expressionEval(getExpression(input)[0], env)
   return `${variable} Set`
@@ -152,6 +152,10 @@ function formParser (op, input, env) {
   if (op === 'quote') { return quoteParser(input) }
   if (op === 'set!') { return setParser(input, env) }
 }
+
+// function callExpEval (op, args, env) {
+//   return env[op](...args)
+// }
 
 // compoundExpEval // evaluates a lisp expression enclosed in braces
 function compoundExpEval (input, env) { // input = '(...)'
@@ -185,6 +189,9 @@ function main (input) {
   return expressionEval(input, globalEnv)
 }
 
+// const input = '(define repeat (lambda (f) (lambda (x) (f (f x)))))'
+// console.log(main(input))
+// console.log(main('((repeat twice) 10)'))
 // ______________________________Math Cases_______________________________
 // let input
 
@@ -192,7 +199,7 @@ function main (input) {
 // console.log(main(input) === -5)
 
 // input = 'pi'
-// console.log(main(input) === 3.14)
+// console.log(main(input) === 3.141592653589793)
 
 // input = '-5'
 // console.log(main(input) === -5)
@@ -239,13 +246,13 @@ function main (input) {
 // input = '(define x (+ 5 5) (* x x))'
 // console.log(main(input))
 
-// const input = '(define circle-area (lambda (r) (* pi (* r r))))'
+// input = '(define circle-area (lambda (r) (* pi (* r r))))'
 // console.log(main(input))
 // console.log(main('(circle-area 3)'))
 
-// const input = '(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))'
+// input = '(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))'
 // console.log(main(input))
-// console.log(main('(fact 10)'))
+// console.log(main('(fact 4)'))
 // console.log(main('(fact 100)'))
 // ____________________________lambda__________________________________________
 
@@ -269,6 +276,13 @@ function main (input) {
 //  _____________________________________set!____________________________________
 
 // main('(define r 1)')
-const input = '(set! r 10)'
-main(input)
+// const input = '(set! r 10)'
+// main(input)
 // console.log(main('(+ r r )'))
+
+// ____________________________nested lambda______________________________________
+
+// const input = '(define rectangleArea (lambda (length) (lambda (bredth) (* length bredth))))'
+// console.log(main(input))
+// console.log(main('(define areaLen2 (rectangleArea 2))'))
+// console.log(main('(areaLen2 3)'))
