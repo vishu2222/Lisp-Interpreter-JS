@@ -1,7 +1,7 @@
 
 const globalEnv = { // ignored arg validations in globalEnv
-  '+': (...args) => args.reduce((sum, i) => sum + i),
-  '-': (...args) => args.reduce((sum, i) => sum - i),
+  '+': (...args) => args.reduce((sum, i) => sum + i, 0),
+  '-': (...args) => args.reduce((sum, i) => sum - i, 0),
   '*': (...args) => args.reduce((mul, i) => mul * i, 1),
   '/': (...args) => { if (args.length === 2) { return args[0] / args[1] } return null },
   '>': (...args) => args[0] > args[1],
@@ -16,7 +16,6 @@ const globalEnv = { // ignored arg validations in globalEnv
   sqrt: (...args) => Math.sqrt(args[0]),
   abs: (...args) => Math.abs(args[0]),
   pi: Math.PI
-  // addpi:(x) => x +
 }
 const specialForms = ['if', 'define', 'quote', 'lambda', 'set!']
 
@@ -59,7 +58,13 @@ function getExpression (input) {
   while (braceCount !== 0) {
     iterCount++
     if (iterCount > input.length) { return null }
-    if (str[0] === '(') { braceCount++; str = str.slice(1) } else if (str[0] === ')') { braceCount--; str = str.slice(1) } else { str = str.slice(1) }
+    if (str[0] === '(') {
+      braceCount++
+      str = str.slice(1)
+    } else if (str[0] === ')') {
+      braceCount--
+      str = str.slice(1)
+    } else { str = str.slice(1) }
   }
   return [input.slice(0, input.length - str.length).trim(), str.trim()]
 }
@@ -132,7 +137,7 @@ function lambdaParser (input, env) { // input = (arg1 arg2...) (body)
 }
 
 // (quote <datum>)  // input = ...)
-function quoteParser (input) { return input.slice(0, input.length - 1).trim() }
+const quoteParser = (input) => input.slice(0, input.length - 1).trim()
 
 // set (set! symbol exp)
 function setParser (input, env) {
@@ -153,25 +158,17 @@ function formParser (op, input, env) {
   if (op === 'set!') { return setParser(input, env) }
 }
 
-// function callExpEval (op, args, env) {
-//   return env[op](...args)
-// }
-
 // compoundExpEval // evaluates a lisp expression enclosed in braces
 function compoundExpEval (input, env) { // input = '(...)'
   input = input.slice(1).trim()
-  if (input[0] === '(') { return expressionEval(input, env) }
+  if (input[0] === '(') { return expressionEval(input, env) } // ?
   const parsedExp = getExpression(input)
   if (parsedExp === null) { return null }
   let op
   [op, input] = [parsedExp[0], parsedExp[1]]
-  if (specialForms.includes(op)) {
-    return formParser(op, input, env)
-  }
+  if (specialForms.includes(op)) { return formParser(op, input, env) }
   if (env[op] !== undefined) {
-    const parsedArgs = getArgs(input)
-    const args = []
-    parsedArgs.forEach(arg => { args.push(expressionEval(arg, env)) })
+    const args = getArgs(input).map(arg => expressionEval(arg, env))
     return env[op](...args)
   }
 }
@@ -184,62 +181,38 @@ function expressionEval (expression, env) {
 
 // main
 function main (input) {
-  // console.log('Given input:', input)
   input = input.replaceAll('(', '( ').replaceAll(')', ' )') // * or fix 'atom)' in getExpression()
   return expressionEval(input, globalEnv)
 }
 
-// const input = '(define repeat (lambda (f) (lambda (x) (f (f x)))))'
-// console.log(main(input))
-// console.log(main('((repeat twice) 10)'))
+console.log(main('(define x 4 5)'))
+console.log(main('((lambda (y) (+ y x)) 5)'))
+
+console.log(main('(define twice (lambda (x) (* 2 x)))'))
+console.log(main('(twice 5)'))
+
+console.log(main('(define repeat (lambda (f) (lambda (x) (f (f x)))))'))
+console.log(main('((repeat twice) 10)'))
 // ______________________________Math Cases_______________________________
-// let input
 
-// input = '-5 '
-// console.log(main(input) === -5)
-
-// input = 'pi'
-// console.log(main(input) === 3.141592653589793)
-
-// input = '-5'
-// console.log(main(input) === -5)
-
-// input = '(sqrt (/ 8 2))' // 2
-// console.log(main(input) === 2)
-
-// input = '(* (/ 1 2) 3)' // 1.5
-// console.log(main(input) === 1.5)
-
-// input = '(+ 1 (+ 2 3))' // 6
-// console.log(main(input) === 6)
-
-// input = '( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )' // 22
-// console.log(main(input) === 22)
-
-// input = '(+ (+ 1 (- 1 1)) 1)' // 2
-// console.log(main(input) === 2)
-
-// input = '(* 5 10)' // 50
-// console.log(main(input) === 50)
+// console.log(main('-5 ') === -5)
+// console.log(main('pi') === 3.141592653589793)
+// console.log(main('-5') === -5)
+// console.log(main('(sqrt (/ 8 2))') === 2)
+// console.log(main('(* (/ 1 2) 3)') === 1.5)
+// console.log(main('(+ 1 (+ 2 3))') === 6)
+// console.log(main('( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )') === 22)
+// console.log(main('(+ (+ 1 (- 1 1)) 1)') === 2)
+// console.log(main('(* 5 10)') === 50)
 // _____________________________________if_______________________________
 
-// let input
-// input = '( if (> 30 45) (+ 1 1) "failedOutput")'
-// console.log(main(input) === '"failedOutput"')
-
-// input = '(if (= 12 12) (+ 78 2) 9)'
-// console.log(main(input) === 80)
-
-// input = '(if #f 1 0)'
-// console.log(main(input) === 0)
-
-// input = '(if #t "abc" 1)'
-// console.log(main(input) === '"abc"')
-
-// ____________________________define__________________________________________
+// console.log(main('( if (> 30 45) (+ 1 1) "failedOutput")') === '"failedOutput"')
+// console.log(main('(if (= 12 12) (+ 78 2) 9)') === 80)
+// console.log(main('(if #f 1 0)') === 0)
+// console.log(main('(if #t "abc" 1)') === '"abc"')
+// ____________________________define____________________________________
 
 // let input
-
 // input = '(define a 90)'
 // console.log(main(input))
 
@@ -270,7 +243,7 @@ function main (input) {
 // input = '(quote #(a b c))'
 // console.log(main(input))
 
-// input = '(quote (+ 1 2)) '
+// input = '(quote ( 1 2)) '
 // console.log(main(input))
 
 //  _____________________________________set!____________________________________
