@@ -40,6 +40,7 @@ function stringEval (atom) {
 
 // atomEval
 function atomEval (atom, env) {
+  if (atom[0] === '\'') { return atom.slice(1) } // 'a -> a
   if (numberEval(atom) === 0) { return 0 }
   if (symbolEval(atom, env) === false) { return false }
   return numberEval(atom) || symbolEval(atom, env) || stringEval(atom)
@@ -175,16 +176,14 @@ function compoundExpEval (compExp, env) { // input = '(op arg1 arg2)'
 // expressionEval // call atomEval if input = identifier and compoundExpEval if input = '(...)'
 function expressionEval (expression, env) {
   if (expression[0] === '(') { return compoundExpEval(expression, env) }
-  if (expression[0] === '\'') { return expression.slice(1) }
   return atomEval(expression, env)
 }
 
 // main
 function main (input) {
   input = input.replaceAll(')', ' )')
-  console.log('given input', input)
+  // console.log('given input', input)
   return expressionEval(input, globalEnv)
 }
 
 module.exports = main
-// console.log(main('\'(+ 1 2)'))
