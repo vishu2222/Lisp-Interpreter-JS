@@ -8,7 +8,7 @@ const globalEnv = { // ignored arg validations in globalEnv
   '<': (...args) => { if (args.length === 2) { return args[0] < args[1] } console.log('Expected 2 args'); return null },
   '>=': (...args) => { if (args.length === 2) { return args[0] >= args[1] } console.log('Expected 2 args'); return null },
   '<=': (...args) => { if (args.length === 2) { return args[0] <= args[1] } console.log('Expected 2 args'); return null },
-  '=': (...args) => { if (args.length === 2) { return args[0] === args[1] } console.log('Expected 2 args'); return null },,
+  '=': (...args) => { if (args.length === 2) { return args[0] === args[1] } console.log('Expected 2 args'); return null },
   '#t': true,
   '#f': false,
   true: true,
@@ -20,7 +20,7 @@ const globalEnv = { // ignored arg validations in globalEnv
 const specialForms = ['if', 'define', 'quote', 'lambda', 'set!']
 
 // numberEval
-function numberEval (num) { // ignored num validation
+function numberEval (num) { // ignored number validation
   if (isNaN(Number(num))) { return null }
   return Number(num)
 }
@@ -111,6 +111,7 @@ function defineParser (input, env) {
   const expression = parsedExpression[0]
   input = parsedExpression[1]
 
+  if (input.slice(1).length > 0) { console.log('expected one argument'); return null }
   env[variable] = expressionEval(expression, env) // this can override an env variable // Section 2.9. Assignment (https://scheme.com/tspl4/start.html#./start:h4) (5.2.1  Top level definitions)  (https://schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_sec_5.2)
   return `${variable} defined`
 }
@@ -200,14 +201,14 @@ function main (input) {
 // console.log(main('(* 5 10)') === 50)
 
 // _____________________________________if_______________________________
-console.log(main('( if (> 30 45) (+ 1 1) "failedOutput")') === '"failedOutput"')
-console.log(main('(if (= 12 12) (+ 78 2) 9)') === 80)
-console.log(main('(if #f 1 0)') === 0)
-console.log(main('(if #t "abc" 1)') === '"abc"')
+// console.log(main('( if (> 30 45) (+ 1 1) "failedOutput")') === '"failedOutput"')
+// console.log(main('(if (= 12 12) (+ 78 2) 9)') === 80)
+// console.log(main('(if #f 1 0)') === 0)
+// console.log(main('(if #t "abc" 1)') === '"abc"')
 
 // ____________________________define____________________________________
 // main('(define a 90)')
-// main('(define x (+ 5 5) (* x x))')
+// main('(define x (+ 5 5))')
 // main('(define circle-area (lambda (r) (* pi (* r r))))')
 // console.log(main('(circle-area 3)') === 28.274333882308138)
 // main('(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))')
@@ -219,7 +220,7 @@ console.log(main('(if #t "abc" 1)') === '"abc"')
 // console.log(main('((lambda (x) (+ x x)) (* 3 4))') === 24)
 // console.log(typeof (main('(lambda (x) (+ x x))')) === 'function')
 
-// main('(define x 4 5)')
+// main('(define x 4)')
 // console.log(main('((lambda (y) (+ y x)) 5)') === 9)
 
 // main('(define twice (lambda (x) (* 2 x)))')
@@ -234,15 +235,15 @@ console.log(main('(if #t "abc" 1)') === '"abc"')
 // console.log(main('(quote (+ 1 2)) ') === '(+ 1 2 )')
 //  _____________________________________set!____________________________________
 
-// main('(define r 1)')
-// main('(set! r 10)')
-// console.log(main('(+ r r )') === 20)
+main('(define r 1)')
+main('(set! r 10)')
+console.log(main('(+ r r )') === 20)
 
 // ____________________________nested lambda______________________________________
 
-// main('(define rectangleArea (lambda (length) (lambda (bredth) (* length bredth))))')
-// main('(define areaLen2 (rectangleArea 2))')
-// console.log(main('(areaLen2 3)') === 6)
+main('(define rectangleArea (lambda (length) (lambda (bredth) (* length bredth))))')
+main('(define areaLen2 (rectangleArea 2))')
+console.log(main('(areaLen2 3)') === 6)
 
 // ___________________________to pass____________________________
 // console.log(main('- 1'))
