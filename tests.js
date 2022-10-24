@@ -61,5 +61,11 @@ main('(define rectangleArea (lambda (length) (lambda (bredth) (* length bredth))
 main('(define areaLen2 (rectangleArea 2))')
 console.log(main('(areaLen2 3)') === 6)
 
+// _____________________________lists__________________________________________
+
+console.log(main('(list 1 2 3 4)'))
+console.log(main('(define a (list 1 2 3 4))'))
+console.log(main('a'))
+
 // ___________________________to pass____________________________
 // console.log(main('- 1'))
