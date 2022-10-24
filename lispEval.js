@@ -167,7 +167,7 @@ function compoundExpEval (compExp, env) { // input = '(op arg1 arg2)'
   const argsArr = getArgs(args).map(arg => expressionEval(arg, env))
   if (env[op] !== undefined) { return env[op](...argsArr) }
   if (op[0] === '(') {
-    op = compoundExpEval(op, env)
+    op = expressionEval(op, env)
     return op(...argsArr)
   }
 }
@@ -175,15 +175,16 @@ function compoundExpEval (compExp, env) { // input = '(op arg1 arg2)'
 // expressionEval // call atomEval if input = identifier and compoundExpEval if input = '(...)'
 function expressionEval (expression, env) {
   if (expression[0] === '(') { return compoundExpEval(expression, env) }
+  if (expression[0] === '\'') { return expression.slice(1) }
   return atomEval(expression, env)
 }
 
 // main
 function main (input) {
-  console.log('given input', input)
   input = input.replaceAll(')', ' )')
+  console.log('given input', input)
   return expressionEval(input, globalEnv)
 }
 
 module.exports = main
-console.log(main('\'(+ 1 2)'))
+// console.log(main('\'(+ 1 2)'))
