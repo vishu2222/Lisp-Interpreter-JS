@@ -15,7 +15,8 @@ const globalEnv = { // ignored arg validations in globalEnv
   false: false,
   sqrt: (...args) => Math.sqrt(args[0]),
   abs: (...args) => Math.abs(args[0]),
-  pi: Math.PI
+  pi: Math.PI,
+  list: (...args) => args
 }
 const specialForms = ['if', 'define', 'quote', 'lambda', 'set!']
 
@@ -187,3 +188,5 @@ function main (input) {
 }
 
 module.exports = main
+
+
