@@ -58,7 +58,15 @@ function parseAtomOrExp (input) {
   while (braceCount !== 0) {
     iterCount++
     if (iterCount > input.length) { return null }
-    if (str[0] === '(') { braceCount++; str = str.slice(1) } else if (str[0] === ')') { braceCount--; str = str.slice(1) } else { str = str.slice(1) }
+    if (str[0] === '(') {
+      braceCount++
+      str = str.slice(1)
+    } else if (str[0] === ')') {
+      braceCount--
+      str = str.slice(1)
+    } else {
+      str = str.slice(1)
+    }
   }
   return [input.slice(0, input.length - str.length).trim(), str.trim()]
 }
@@ -136,11 +144,11 @@ const quoteParser = (input) => input.slice(0, input.length - 1).trim()
 // set (set! symbol exp)
 function setParser (input, env) {
   const getExp = parseAtomOrExp(input)
-  const variable = getExp[0]
+  const symbol = getExp[0]
   input = getExp[1]
-  if (env[variable] === undefined) { return null }
-  env[variable] = expressionEval(parseAtomOrExp(input)[0], env)
-  return `${variable} Set`
+  if (env[symbol] === undefined) { console.log('set called on undefined variable'); return null }
+  env[symbol] = expressionEval(parseAtomOrExp(input)[0], env)
+  return `${symbol} Set`
 }
 
 // special forms
@@ -175,7 +183,7 @@ function expressionEval (expression, env) {
 
 // main
 function main (input) {
-  input = input.replaceAll(')', ' )') // * or fix 'atom)' in parseAtomOrExp()
+  input = input.replaceAll(')', ' )')
   return expressionEval(input, globalEnv)
 }
 
@@ -222,9 +230,8 @@ function main (input) {
 
 // _____________________________________quote____________________________________
 
-// console.log(main('(quote #(a b c))') === '#( a b c )')
-// console.log(main('(quote (+ 1 2)) ') === '( + 1 2 )')
-
+// console.log(main('(quote #(a b c))') === '#(a b c )')
+// console.log(main('(quote (+ 1 2)) ') === '(+ 1 2 )')
 //  _____________________________________set!____________________________________
 
 // main('(define r 1)')
