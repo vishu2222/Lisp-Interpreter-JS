@@ -84,18 +84,19 @@ function getArgs (input) {
 
 // ifParser (if <test> <consequent> <alternate>)
 function ifParser (input, env) {
-  let parsedExp = parseAtomOrExp(input)
-  const testArg = parsedExp[0]
-  input = parsedExp[1]
+  let parsed = parseAtomOrExp(input)
+  const testArg = parsed[0]
+  input = parsed[1]
 
-  parsedExp = parseAtomOrExp(input)
-  const passArg = parsedExp[0]
-  input = parsedExp[1]
+  parsed = parseAtomOrExp(input)
+  const passArg = parsed[0]
+  input = parsed[1]
 
-  parsedExp = parseAtomOrExp(input)
-  const failArg = parsedExp[0]
-  input = parsedExp[1]
+  parsed = parseAtomOrExp(input)
+  const failArg = parsed[0]
+  input = parsed[1]
 
+  if (input.trim().slice(1).length > 0) { console.log('error: too many operands'); return null }
   if (expressionEval(testArg, env) === false) { return expressionEval(failArg, env) }
   return expressionEval(passArg, env)
 }
@@ -199,10 +200,10 @@ function main (input) {
 // console.log(main('(* 5 10)') === 50)
 
 // _____________________________________if_______________________________
-// console.log(main('( if (> 30 45) (+ 1 1) "failedOutput")') === '"failedOutput"')
-// console.log(main('(if (= 12 12) (+ 78 2) 9)') === 80)
-// console.log(main('(if #f 1 0)') === 0)
-// console.log(main('(if #t "abc" 1)') === '"abc"')
+console.log(main('( if (> 30 45) (+ 1 1) "failedOutput")') === '"failedOutput"')
+console.log(main('(if (= 12 12) (+ 78 2) 9)') === 80)
+console.log(main('(if #f 1 0)') === 0)
+console.log(main('(if #t "abc" 1)') === '"abc"')
 
 // ____________________________define____________________________________
 // main('(define a 90)')
@@ -233,9 +234,9 @@ function main (input) {
 // console.log(main('(quote (+ 1 2)) ') === '(+ 1 2 )')
 //  _____________________________________set!____________________________________
 
-main('(define r 1)')
-main('(set! r 10)')
-console.log(main('(+ r r )') === 20)
+// main('(define r 1)')
+// main('(set! r 10)')
+// console.log(main('(+ r r )') === 20)
 
 // ____________________________nested lambda______________________________________
 
