@@ -41,14 +41,14 @@ function stringEval (atom) {
 
 // atomEval
 function atomEval (atom, env) {
-  if (atom[0] === '\'') { return atom.slice(1) } // 'a -> a
+  if (atom[0] === '\'') { return atom.slice(1) } // 'abc -> abc
   if (numberEval(atom) === 0) { return 0 }
   if (symbolEval(atom, env) === false) { return false }
   return numberEval(atom) || symbolEval(atom, env) || stringEval(atom)
 }
 
-// parseAtomOrExp // consumes an input and returns first atom or expression
-function parseAtomOrExp (input) {
+// getAtomOrExp // consumes an input and returns first atom or expression
+function getAtomOrExp (input) {
   input = input.trim()
   if (input[0] !== '(') {
     const atom = input.split(' ')[0]
@@ -77,7 +77,7 @@ function parseAtomOrExp (input) {
 function getArgs (input) { // input = arg1, arg2, ...)
   const argsArr = []
   while (input[0] !== ')') {
-    const parsed = parseAtomOrExp(input)
+    const parsed = getAtomOrExp(input)
     argsArr.push(parsed[0])
     input = parsed[1]
   }
@@ -86,15 +86,15 @@ function getArgs (input) { // input = arg1, arg2, ...)
 
 // ifParser (if <test> <consequent> <alternate>)
 function ifParser (input, env) { // input = test consequent alternate )
-  let parsed = parseAtomOrExp(input)
+  let parsed = getAtomOrExp(input)
   const testArg = parsed[0]
   input = parsed[1]
 
-  parsed = parseAtomOrExp(input)
+  parsed = getAtomOrExp(input)
   const passArg = parsed[0]
   input = parsed[1]
 
-  parsed = parseAtomOrExp(input)
+  parsed = getAtomOrExp(input)
   const failArg = parsed[0]
   input = parsed[1]
 
@@ -105,15 +105,15 @@ function ifParser (input, env) { // input = test consequent alternate )
 
 // defineParser // (define <variable> <expression>)
 function defineParser (input, env) {
-  let parsedExpression = parseAtomOrExp(input)
+  let parsedExpression = getAtomOrExp(input)
   const variable = parsedExpression[0]
   input = parsedExpression[1]
 
-  parsedExpression = parseAtomOrExp(input)
+  parsedExpression = getAtomOrExp(input)
   const expression = parsedExpression[0]
   input = parsedExpression[1]
 
-  if (input.slice(1).length > 0) { console.log('expected one argument'); return null }
+  if (input.slice(1).length > 0) { console.log('too many operands'); return null }
   env[variable] = expressionEval(expression, env) // this can override an env variable // Section 2.9. Assignment (https://scheme.com/tspl4/start.html#./start:h4) (5.2.1  Top level definitions)  (https://schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_sec_5.2)
   return `${variable} defined`
 }
@@ -121,12 +121,12 @@ function defineParser (input, env) {
 // lambdaParser (lambda (args) body) or ((lambda (args) body) (parameters))
 function lambdaParser (input, env) { // input = (arg1 arg2...) (body)
   if (input[0] !== '(') { return null }
-  const parsed = parseAtomOrExp(input) // parsed[0] = (arg1 arg2...)
+  const parsed = getAtomOrExp(input) // parsed[0] = (arg1 arg2...)
   input = parsed[1] // input = (body) // input = (body)) (exp))
   const parsedArgs = parsed[0].slice(1).trim() // parsedArgs = arg1 arg2...)
 
   const args = getArgs(parsedArgs)
-  const parcedBody = parseAtomOrExp(input)
+  const parcedBody = getAtomOrExp(input)
   const body = parcedBody[0]
   input = parcedBody[1]
 
@@ -139,14 +139,21 @@ function lambdaParser (input, env) { // input = (arg1 arg2...) (body)
 }
 
 // (quote <datum>)  // input = ...)
-const quoteParser = (input) => input.slice(0, input.length - 1).trim()
+// const quoteParser = (input) => input.slice(0, input.length - 1).trim()
+function quoteParser (input) {
+  const parsed = getAtomOrExp(input)
+  const datum = parsed[0]
+  input = parsed[1]
+  if (input.slice(1).length > 0) { console.log('too many operands'); return null }
+  return datum
+}
 
 // set (set! symbol exp)
 function setParser (input, env) {
-  const parsed = parseAtomOrExp(input)
+  const parsed = getAtomOrExp(input)
   const [symbol, expression] = [parsed[0], parsed[1]]
   if (env[symbol] === undefined) { console.log('can\'t set undefined variable'); return null }
-  env[symbol] = expressionEval(parseAtomOrExp(expression)[0], env)
+  env[symbol] = expressionEval(getAtomOrExp(expression)[0], env)
   return `${symbol} Set`
 }
 
@@ -162,7 +169,7 @@ function formParser (op, input, env) {
 // compoundExpEval // evaluates a expression enclosed in braces
 function compoundExpEval (compExp, env) { // input = '(op arg1 arg2)'
   compExp = compExp.slice(1).trim() // op arg1 arg2)
-  const OpArgs = parseAtomOrExp(compExp)
+  const OpArgs = getAtomOrExp(compExp)
   if (OpArgs === null) { return null }
   let [op, args] = [OpArgs[0], OpArgs[1]]
   if (specialForms.includes(op)) { return formParser(op, args, env) }
@@ -182,11 +189,14 @@ function expressionEval (expression, env) {
 
 // main
 function main (input) {
-  input = input.replaceAll(')', ' )')
+  input = input.replaceAll(')', ' )') // .replaceAll('(', '( ')
   // console.log('given input', input)
   return expressionEval(input, globalEnv)
 }
 
 module.exports = main
 
-
+console.log(main('(\'(+ 2 1) )'))
+// console.log(main('\'(1 2 3 4)'))
+// console.log(main('(list \'(a b c))')) //
+// console.log(main('(list \'a \'b \'c)'))
