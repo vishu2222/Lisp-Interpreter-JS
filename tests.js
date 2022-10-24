@@ -47,6 +47,7 @@ console.log(main('((repeat twice) 10)') === 40)
 
 console.log(main('(quote #(a b c))') === '#(a b c )')
 console.log(main('(quote (+ 1 2)) ') === '(+ 1 2 )')
+console.log(main('\'(1 2)') === '(1 2 )')
 
 //  _____________________________________set!____________________________________
 
@@ -61,4 +62,4 @@ main('(define areaLen2 (rectangleArea 2))')
 console.log(main('(areaLen2 3)') === 6)
 
 // ___________________________to pass____________________________
-console.log(main('- 1'))
+// console.log(main('- 1'))
