@@ -47,7 +47,7 @@ function atomEval (atom, env) {
   return numberEval(atom) || symbolEval(atom, env) || stringEval(atom)
 }
 
-// getAtomOrExp // consumes an input and returns first atom or expression
+// getAtomOrExp // consumes an input and returns first atom or expression and rest of the string
 function getAtomOrExp (input) {
   input = input.trim()
   if (input[0] !== '(') {
@@ -129,9 +129,8 @@ function lambdaParser (input, env) { // input = (arg1 arg2...) (body)
   const parcedBody = getAtomOrExp(input)
   const body = parcedBody[0]
   input = parcedBody[1]
-
+  const localEnv = Object.create(env)
   function lambdaFunc (...funcArgs) {
-    const localEnv = Object.create(env)
     funcArgs.forEach((arg, index) => { localEnv[args[index]] = arg })
     return expressionEval(body, localEnv)
   }
@@ -139,7 +138,6 @@ function lambdaParser (input, env) { // input = (arg1 arg2...) (body)
 }
 
 // (quote <datum>)  // input = ...)
-// const quoteParser = (input) => input.slice(0, input.length - 1).trim()
 function quoteParser (input) {
   const parsed = getAtomOrExp(input)
   const datum = parsed[0]
