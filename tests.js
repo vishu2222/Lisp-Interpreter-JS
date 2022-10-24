@@ -54,7 +54,7 @@ main('(define r 1)')
 main('(set! r 10)')
 console.log(main('(+ r r )') === 20)
 
-// ____________________________nested lambda______________________________________
+// ____________________________nested lambda(closures)______________________________________
 
 main('(define rectangleArea (lambda (length) (lambda (bredth) (* length bredth))))')
 main('(define areaLen2 (rectangleArea 2))')
