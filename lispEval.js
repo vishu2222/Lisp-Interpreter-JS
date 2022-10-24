@@ -143,11 +143,10 @@ const quoteParser = (input) => input.slice(0, input.length - 1).trim()
 
 // set (set! symbol exp)
 function setParser (input, env) {
-  const getExp = parseAtomOrExp(input)
-  const symbol = getExp[0]
-  input = getExp[1]
-  if (env[symbol] === undefined) { console.log('set called on undefined variable'); return null }
-  env[symbol] = expressionEval(parseAtomOrExp(input)[0], env)
+  const parsed = parseAtomOrExp(input)
+  const [symbol, expression] = [parsed[0], parsed[1]]
+  if (env[symbol] === undefined) { console.log('can\'t set undefined variable'); return null }
+  env[symbol] = expressionEval(parseAtomOrExp(expression)[0], env)
   return `${symbol} Set`
 }
 
@@ -234,9 +233,9 @@ function main (input) {
 // console.log(main('(quote (+ 1 2)) ') === '(+ 1 2 )')
 //  _____________________________________set!____________________________________
 
-// main('(define r 1)')
-// main('(set! r 10)')
-// console.log(main('(+ r r )') === 20)
+main('(define r 1)')
+main('(set! r 10)')
+console.log(main('(+ r r )') === 20)
 
 // ____________________________nested lambda______________________________________
 
