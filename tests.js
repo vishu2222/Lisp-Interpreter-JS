@@ -45,8 +45,8 @@ console.log(main('((repeat twice) 10)') === 40)
 
 // _____________________________________quote____________________________________
 console.log('Quote')
-console.log(main('(quote (a b c))') === '( a b c )')
-console.log(main('(quote (+ 1 2)) ') === '( + 1 2 )')
+console.log(main('(quote (a b c))') === '(a b c )')
+console.log(main('(quote (+ 1 2)) ') === '(+ 1 2 )')
 
 //  _____________________________________set!____________________________________
 console.log('Set!')
@@ -63,9 +63,17 @@ console.log(main('(areaLen2 3)') === 6)
 // _____________________________lists__________________________________________
 console.log('Lists')
 console.log(main('(list 1 2 3 4)'))
+console.log(main('(list \'a \'b \'c)'))
 console.log(main('(define a (list 1 2 3 4))'))
 console.log(main('a'))
 console.log(main('(list \'a (+ 3 4) \'c)'))
 console.log(main('(quote ("this" "is" "a" "list"))'))
+
+// _________________________begin__________________________________________
+
+console.log('Begin')
+console.log(main('(begin (define r 10) (* pi (* r r)))'))
+
 // ___________________________to pass____________________________
 // console.log(main('- 1'))
+// console.log(main('(list \'(a b c))')) // doesnt support quote form '()

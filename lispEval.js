@@ -18,7 +18,7 @@ const globalEnv = { // ignored arg validations in globalEnv
   pi: Math.PI,
   list: (...args) => args
 }
-const specialForms = ['if', 'define', 'quote', 'lambda', 'set!']
+const specialForms = ['if', 'define', 'quote', 'lambda', 'set!', 'begin']
 
 // numberEval
 function numberEval (atom) { // ignored number validation
@@ -157,6 +157,13 @@ function setParser (input, env) {
   return `${symbol} Set`
 }
 
+// (begin exp1 exp2 ...)
+function begin (input, env) {
+  const argsArr = getArgs(input)
+  argsArr.slice(0, argsArr.length - 1).forEach(arg => expressionEval(arg, env))
+  return expressionEval(argsArr[argsArr.length - 1], env)
+}
+
 // special forms
 function formParser (op, input, env) {
   if (op === 'if') { return ifParser(input, env) }
@@ -164,6 +171,7 @@ function formParser (op, input, env) {
   if (op === 'lambda') { return lambdaParser(input, env) }
   if (op === 'quote') { return quoteParser(input) }
   if (op === 'set!') { return setParser(input, env) }
+  if (op === 'begin') { return begin(input, env) }
 }
 
 // compoundExpEval // evaluates a expression enclosed in braces
@@ -195,8 +203,3 @@ function main (input) {
 }
 
 module.exports = main
-
-console.log(main('(\'(+ 2 1) )'))
-// console.log(main('\'(1 2 3 4)'))
-// console.log(main('(list \'(a b c))')) //
-// console.log(main('(list \'a \'b \'c)'))
