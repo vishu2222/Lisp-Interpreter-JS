@@ -152,16 +152,18 @@ function formParser (op, input, env) {
   if (op === 'set!') { return setParser(input, env) }
 }
 
-// compoundExpEval // evaluates a lisp expression enclosed in braces
+// compoundExpEval // evaluates a expression enclosed in braces
 function compoundExpEval (compExp, env) { // input = '(op arg1 arg2)'
   compExp = compExp.slice(1).trim() // op arg1 arg2)
-  const parsedOpArgs = parseAtomOrExp(compExp)
-  if (parsedOpArgs === null) { return null }
-  const [op, args] = [parsedOpArgs[0], parsedOpArgs[1]]
+  const OpArgs = parseAtomOrExp(compExp)
+  if (OpArgs === null) { return null }
+  let [op, args] = [OpArgs[0], OpArgs[1]]
   if (specialForms.includes(op)) { return formParser(op, args, env) }
-  if (env[op] !== undefined) {
-    const argsArr = getArgs(args).map(arg => expressionEval(arg, env))
-    return env[op](...argsArr)
+  const argsArr = getArgs(args).map(arg => expressionEval(arg, env))
+  if (env[op] !== undefined) { return env[op](...argsArr) }
+  if (op[0] === '(') {
+    op = compoundExpEval(op, env)
+    return op(...argsArr)
   }
 }
 
@@ -173,79 +175,67 @@ function expressionEval (expression, env) {
 
 // main
 function main (input) {
-  input = input.replaceAll('(', '( ').replaceAll(')', ' )') // * or fix 'atom)' in parseAtomOrExp()
+  input = input.replaceAll(')', ' )') // * or fix 'atom)' in parseAtomOrExp()
   return expressionEval(input, globalEnv)
 }
 
-
-
-// console.log(main('(define x 4 5)'))
-// console.log(main('((lambda (y) (+ y x)) 5)'))
-
-// console.log(main('(define twice (lambda (x) (* 2 x)))'))
-// console.log(main('(twice 5)'))
-
-// console.log(main('(define repeat (lambda (f) (lambda (x) (f (f x)))))'))
-// console.log(main('((repeat twice) 10)'))
 // ______________________________Math Cases_______________________________
 
-console.log(main('-5 ') === -5)
-console.log(main('pi') === 3.141592653589793)
-console.log(main('-5') === -5)
-console.log(main('(sqrt (/ 8 2))') === 2)
-console.log(main('(* (/ 1 2) 3)') === 1.5)
-console.log(main('(+ 1 (+ 2 3))') === 6)
-console.log(main('( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )') === 22)
-console.log(main('(+ (+ 1 (- 1 1)) 1)') === 2)
-console.log(main('(* 5 10)') === 50)
+// console.log(main('-5 ') === -5)
+// console.log(main('pi') === 3.141592653589793)
+// console.log(main('-5') === -5)
+// console.log(main('(sqrt (/ 8 2))') === 2)
+// console.log(main('(* (/ 1 2) 3)') === 1.5)
+// console.log(main('(+ 1 (+ 2 3))') === 6)
+// console.log(main('( + ( + ( + 9 (+ 2 2)) 2) ( + 3 4) )') === 22)
+// console.log(main('(+ (+ 1 (- 1 1)) 1)') === 2)
+// console.log(main('(* 5 10)') === 50)
+
 // _____________________________________if_______________________________
-console.log(main('( if (> 30 45) (+ 1 1) "failedOutput")') === '"failedOutput"')
-console.log(main('(if (= 12 12) (+ 78 2) 9)') === 80)
-console.log(main('(if #f 1 0)') === 0)
-console.log(main('(if #t "abc" 1)') === '"abc"')
+// console.log(main('( if (> 30 45) (+ 1 1) "failedOutput")') === '"failedOutput"')
+// console.log(main('(if (= 12 12) (+ 78 2) 9)') === 80)
+// console.log(main('(if #f 1 0)') === 0)
+// console.log(main('(if #t "abc" 1)') === '"abc"')
+
 // ____________________________define____________________________________
-let input
-input = '(define a 90)'
-main(input)
-input = '(define x (+ 5 5) (* x x))'
-main(input)
-input = '(define circle-area (lambda (r) (* pi (* r r))))'
-main(input)
-console.log(main('(circle-area 3)') === 28.274333882308138)
-input = '(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))'
-main(input)
-console.log(main('(fact 4)') === 24)
-console.log(main('(fact 10)') === 3628800)
+// main('(define a 90)')
+// main('(define x (+ 5 5) (* x x))')
+// main('(define circle-area (lambda (r) (* pi (* r r))))')
+// console.log(main('(circle-area 3)') === 28.274333882308138)
+// main('(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))')
+// console.log(main('(fact 4)') === 24)
+// console.log(main('(fact 10)') === 3628800)
+
 // ____________________________lambda__________________________________________
 
-// let input
-input = '((lambda (x) (+ x x)) (* 3 4))' // 24
-console.log(main(input) === 24)
+// console.log(main('((lambda (x) (+ x x)) (* 3 4))') === 24)
+// console.log(typeof (main('(lambda (x) (+ x x))')) === 'function')
 
-input = '(lambda (x) (+ x x))'
-console.log(main(input))
+// main('(define x 4 5)')
+// console.log(main('((lambda (y) (+ y x)) 5)') === 9)
+
+// main('(define twice (lambda (x) (* 2 x)))')
+// console.log(main('(twice 5)') === 10)
+
+// main('(define repeat (lambda (f) (lambda (x) (f (f x)))))')
+// console.log(main('((repeat twice) 10)') === 40)
 
 // _____________________________________quote____________________________________
 
-// let input
-
-input = '(quote #(a b c))'
-console.log(main(input) === '#( a b c )')
-
-input = '(quote (+ 1 2)) '
-console.log(main(input) === '( + 1 2 )')
+// console.log(main('(quote #(a b c))') === '#( a b c )')
+// console.log(main('(quote (+ 1 2)) ') === '( + 1 2 )')
 
 //  _____________________________________set!____________________________________
 
-main('(define r 1)')
-main('(set! r 10)')
-console.log(main('(+ r r )') === 20)
+// main('(define r 1)')
+// main('(set! r 10)')
+// console.log(main('(+ r r )') === 20)
 
 // ____________________________nested lambda______________________________________
 
-main('(define rectangleArea (lambda (length) (lambda (bredth) (* length bredth))))')
-main('(define areaLen2 (rectangleArea 2))')
-console.log(main('(areaLen2 3)') === 6)
+// main('(define rectangleArea (lambda (length) (lambda (bredth) (* length bredth))))')
+// main('(define areaLen2 (rectangleArea 2))')
+// console.log(main('(areaLen2 3)') === 6)
 
 // ___________________________to pass____________________________
 // console.log(main('- 1'))
