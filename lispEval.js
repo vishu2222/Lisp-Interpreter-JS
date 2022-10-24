@@ -45,14 +45,14 @@ function atomEval (input, env) {
   return numberEval(input) || symbolEval(input, env) || stringEval(input)
 }
 
-// parseAtomOrExp // consumes an input and returns first expression enclosed in matching braces and rest of input
+// parseAtomOrExp // consumes an input and returns first atom or expression
 function parseAtomOrExp (input) {
   input = input.trim()
   if (input[0] !== '(') {
-    const item = input.split(' ')[0]
-    return [item, input.slice(item.length).trim()]
+    const atom = input.split(' ')[0]
+    return [atom, input.slice(atom.length).trim()]
   }
-  let str = input.slice(1)
+  let str = input.slice(1) // input = (...) ) // expression = ...) )
   let braceCount = 1
   let iterCount = 0
   while (braceCount !== 0) {
@@ -72,18 +72,18 @@ function parseAtomOrExp (input) {
 }
 
 // getArgs // returns all arguments in input {inp = arg1, arg2, ...)} occuring before an unmatched )
-function getArgs (input) {
-  const args = []
+function getArgs (input) { // input = arg1, arg2, ...)
+  const argsArr = []
   while (input[0] !== ')') {
-    const parsedExp = parseAtomOrExp(input)
-    args.push(parsedExp[0])
-    input = parsedExp[1]
+    const parsed = parseAtomOrExp(input)
+    argsArr.push(parsed[0])
+    input = parsed[1]
   }
-  return args
+  return argsArr
 }
 
 // ifParser (if <test> <consequent> <alternate>)
-function ifParser (input, env) {
+function ifParser (input, env) { // input = test consequent alternate )
   let parsed = parseAtomOrExp(input)
   const testArg = parsed[0]
   input = parsed[1]
