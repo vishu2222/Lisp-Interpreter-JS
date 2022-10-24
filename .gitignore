@@ -102,11 +102,7 @@ dist
 
 # TernJS port file
 .tern-port
-scheme.py
-test.js
 new.lisp
 testCases.js
-parser.js
 a.js
-lispEvalCopy.js
 play.js
