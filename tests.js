@@ -77,3 +77,5 @@ console.log(main('(begin (define r 10) (* pi (* r r)))'))
 // ___________________________to pass____________________________
 // console.log(main('- 1'))
 // console.log(main('(list \'(a b c))')) // doesnt support quote form '()
+// console.log(main('(define range (lambda (a b) (if (= a b) (quote ()) (cons a (range (+ a 1) b)))))'))
+// console.log(main('(range 0 10)'))
