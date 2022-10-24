@@ -29,7 +29,7 @@ main('(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))')
 console.log(main('(fact 4)') === 24)
 console.log(main('(fact 10)') === 3628800)
 
-// ____________________________lambda__________________________________________
+// ____________________________lambda and higher order functions_____________
 console.log('Lambda')
 console.log(main('((lambda (x) (+ x x)) (* 3 4))') === 24)
 console.log(typeof (main('(lambda (x) (+ x x))')) === 'function')
