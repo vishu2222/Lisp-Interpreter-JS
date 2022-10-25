@@ -1,7 +1,10 @@
-# Lisp-Interpreter-JS
+# Basic Lisp(SCHEME)-Interpreter-JS 
 
-* Lisp interpreter parses lisp code to JS and executes it.
-* when parsing it validates if the input follows the syntax rules of lisp. 
+* Lisp interpreter translates lisp code to JS and executes it.
+* runs basic math operations.
+* works with Special forms ['if', 'define', 'quote', 'lambda', 'set!', 'begin']
+* supports userdefined functions, higher order functions and lexical scoping
+
 
 ## References
 * http://norvig.com/lispy.html
