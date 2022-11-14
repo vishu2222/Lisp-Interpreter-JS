@@ -105,13 +105,13 @@ function ifParser (input, env) { // input = test consequent alternate )
 
 // defineParser // (define <variable> <expression>)
 function defineParser (input, env) {
-  let parsedExpression = getAtomOrExp(input)
-  const variable = parsedExpression[0]
-  input = parsedExpression[1]
+  let parsed = getAtomOrExp(input)
+  const variable = parsed[0]
+  input = parsed[1]
 
-  parsedExpression = getAtomOrExp(input)
-  const expression = parsedExpression[0]
-  input = parsedExpression[1]
+  parsed = getAtomOrExp(input)
+  const expression = parsed[0]
+  input = parsed[1]
 
   if (input.slice(1).length > 0) { console.log('too many operands'); return null }
   env[variable] = expressionEval(expression, env) // this can override an env variable // Section 2.9. Assignment (https://scheme.com/tspl4/start.html#./start:h4) (5.2.1  Top level definitions)  (https://schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_sec_5.2)
